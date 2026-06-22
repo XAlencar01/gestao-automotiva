@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart System - Área do Cliente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>h1,h2,h3,.logo,.btn-primary,.stat-value,.modal-titulo{font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
+    :root {
+      --bg-deep: #061412; --bg-surface: #0c211d; --bg-card: #11302a;
+      --border: #1e4a40; --primary: #16a34a;
+      --text-main: #f1f8f5; --text-muted: #87a69c;
+      --sidebar-w: 260px;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:'Inter',system-ui,sans-serif; background:var(--bg-deep); color:var(--text-main); overflow-x:hidden; }
+    .app-container { display:flex; min-height:100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width:var(--sidebar-w); background:var(--bg-surface); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:1.5rem; position:fixed; height:100vh; z-index:40; transition:width .2s; }
+    .logo { display:flex; align-items:center; gap:.75rem; font-size:1.25rem; font-weight:800; color:#fff; margin-bottom:2.5rem; }
+    .nav-links { flex:1; display:flex; flex-direction:column; gap:.5rem; }
+    .nav-item { display:flex; align-items:center; gap:.75rem; padding:.75rem 1rem; border-radius:.75rem; color:var(--text-muted); font-weight:500; transition:all .2s; cursor:pointer; border:none; background:transparent; text-align:left; width:100%; font-family:inherit; }
+    .nav-item:hover,.nav-item.active { background:var(--primary); color:white; box-shadow:0 4px 12px rgba(22,163,74,.25); }
+    .user-footer { margin-top:auto; padding-top:1.5rem; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:.5rem; }
+    .avatar { width:32px; height:32px; min-width:32px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:.8rem; flex-shrink:0; }
+
+    /* ── MAIN ── */
+    .main-content { flex:1; margin-left:var(--sidebar-w); padding:2rem 1.5rem; min-width:0; }
+
+    /* ── CARDS ── */
+    .card { background:var(--bg-surface); border:1px solid var(--border); border-radius:1rem; padding:1.5rem; transition:border-color .2s; }
+    .stat-card { background:var(--bg-surface); border:1px solid var(--border); border-radius:1rem; padding:1.25rem; display:flex; flex-direction:column; gap:.5rem; transition:transform .2s; }
+    .stat-card:hover { transform:translateY(-4px); border-color:var(--primary); }
+    .stat-icon { padding:.5rem; border-radius:.5rem; width:fit-content; margin-bottom:.25rem; }
+    .stat-value { font-size:1.75rem; font-weight:800; letter-spacing:-.025em; }
+
+    /* ── TABELA ── */
+    table { width:100%; border-collapse:collapse; }
+    thead th { background:rgba(30,41,59,.5); padding:.75rem 1rem; text-align:left; font-size:.7rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; border-bottom:1px solid var(--border); white-space:nowrap; }
+    tbody td { padding:.75rem 1rem; border-bottom:1px solid var(--border); font-size:.8rem; color:var(--text-muted); }
+    tbody tr:last-child td { border-bottom:none; }
+    tbody tr:hover td { background:rgba(22,163,74,.04); color:var(--text-main); }
+
+    /* ── SCREENS ── */
+    .screen { display:none; }
+    .screen.active { display:block; }
+
+    /* ── BADGES ── */
+    .badge { display:inline-flex; align-items:center; gap:.3rem; padding:.2rem .65rem; border-radius:9999px; font-size:.7rem; font-weight:700; }
+    .badge-pending  { background:rgba(251,191,36,.12); color:#fbbf24; }
+    .badge-approved { background:rgba(34,197,94,.12);  color:#22c55e; }
+    .badge-rejected { background:rgba(239,68,68,.12);  color:#ef4444; }
+
+    /* ── INPUTS ── */
+    .input-field { background:var(--bg-card); border:1px solid var(--border); color:var(--text-main); border-radius:.65rem; padding:.6rem 1rem; font-size:.875rem; outline:none; transition:border-color .2s; width:100%; font-family:inherit; }
+    .input-field:focus { border-color:var(--primary); }
+    .input-field::placeholder { color:var(--text-muted); }
+
+    /* Placa */
+    .placa-wrapper { position:relative; }
+    .placa-contador { position:absolute; right:.75rem; top:50%; transform:translateY(-50%); font-size:.7rem; color:var(--text-muted); pointer-events:none; }
+    .placa-contador.limite { color:#f87171; }
+
+    /* ── BOTÕES ── */
+    .btn-primary { display:inline-flex; align-items:center; gap:.5rem; background:var(--primary); color: var(--primary-ink); font-weight:700; font-size:.875rem; padding:.65rem 1.25rem; border-radius:.65rem; border:none; cursor:pointer; transition:all .2s; font-family:inherit; }
+    .btn-primary:hover { background:#15803d; box-shadow:0 4px 12px rgba(22,163,74,.3); }
+    .btn-primary:disabled { opacity:.6; cursor:not-allowed; }
+    .btn-secondary { display:inline-flex; align-items:center; gap:.5rem; background:transparent; color:var(--text-muted); font-weight:700; font-size:.875rem; padding:.65rem 1.25rem; border-radius:.65rem; border:1px solid var(--border); cursor:pointer; transition:all .2s; font-family:inherit; }
+    .btn-secondary:hover { color:white; border-color:#5a4b43; }
+    .btn-danger { display:inline-flex; align-items:center; gap:.5rem; background:rgba(239,68,68,.1); color:#ef4444; font-weight:700; font-size:.875rem; padding:.65rem 1.25rem; border-radius:.65rem; border:1px solid rgba(239,68,68,.25); cursor:pointer; transition:all .2s; font-family:inherit; }
+    .btn-danger:hover { background:rgba(239,68,68,.2); }
+
+    /* ── VEÍCULO ── */
+    .vehicle-card { background:var(--bg-card); border:1px solid var(--border); border-radius:.875rem; padding:1rem 1.25rem; display:flex; align-items:center; justify-content:space-between; transition:border-color .2s; }
+    .vehicle-card:hover { border-color:var(--primary); }
+
+    /* ── INFO ROWS (conta) ── */
+    .info-row { display:flex; align-items:flex-start; gap:.75rem; padding:.75rem 1rem; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+    .info-row:last-child { border-bottom:none; }
+    .info-label { font-size:.8rem; color:var(--text-muted); min-width:110px; flex-shrink:0; padding-top:.1rem; }
+    .info-value { font-size:.875rem; font-weight:500; color:var(--text-main); flex:1; word-break:break-word; }
+
+    /* ── EDIÇÃO PERFIL ── */
+    .edit-section { font-size:.7rem; font-weight:700; color:#16a34a; text-transform:uppercase; letter-spacing:.08em; margin:1rem 0 .5rem; }
+    .cep-wrapper { position:relative; }
+    .cep-wrapper .input-field { padding-right:5.5rem; }
+    .btn-cep { position:absolute; right:.4rem; top:50%; transform:translateY(-50%); background:#cc4a1f; color:white; border:none; border-radius:.5rem; padding:.3rem .75rem; font-size:.75rem; font-weight:700; cursor:pointer; font-family:inherit; }
+    .btn-cep:disabled { opacity:.5; cursor:wait; }
+    .cep-status { font-size:.72rem; margin-top:.25rem; min-height:1rem; }
+
+    /* ── CHAT BOOKING ── */
+    .chat-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:1rem;overflow:hidden;display:flex;flex-direction:column;max-height:560px}
+    .chat-head{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:rgba(22,163,74,.06)}
+    .chat-head-avatar{width:38px;height:38px;border-radius:50%;background:var(--primary);color:var(--primary-ink);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .chat-head-title{font-weight:800;font-size:.9rem;font-family:'Space Grotesk',sans-serif}
+    .chat-head-sub{font-size:.72rem;color:var(--text-muted);display:flex;align-items:center;gap:.4rem}
+    .dot-online{width:7px;height:7px;border-radius:50%;background:#3b82f6;display:inline-block}
+    .chat-close{margin-left:auto;background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:.25rem}
+    .chat-close:hover{color:var(--text-main)}
+    .chat-body{flex:1;overflow-y:auto;padding:1.25rem;display:flex;flex-direction:column;gap:.6rem;min-height:180px}
+    .msg{max-width:80%;padding:.6rem .9rem;border-radius:1rem;font-size:.85rem;line-height:1.45;animation:msgIn .25s ease-out}
+    @keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .msg-bot{align-self:flex-start;background:var(--bg-card);border:1px solid var(--border);border-bottom-left-radius:.25rem;color:var(--text-main)}
+    .msg-user{align-self:flex-end;background:var(--primary);color:var(--primary-ink);border-bottom-right-radius:.25rem;font-weight:600}
+    .msg-summary{align-self:stretch;background:var(--bg-card);border:1px solid var(--border);border-radius:.85rem;padding:.9rem 1rem;font-size:.82rem}
+    .msg-summary div{display:flex;justify-content:space-between;padding:.25rem 0;border-bottom:1px solid var(--border)}
+    .msg-summary div:last-child{border-bottom:none}
+    .msg-summary span:first-child{color:var(--text-muted)}
+    .typing{display:flex;gap:3px;align-self:flex-start;padding:.7rem .9rem;background:var(--bg-card);border:1px solid var(--border);border-radius:1rem;border-bottom-left-radius:.25rem}
+    .typing span{width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:typingBlink 1s infinite}
+    .typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}
+    @keyframes typingBlink{0%,100%{opacity:.25}50%{opacity:1}}
+    .chat-quickreplies{display:flex;flex-wrap:wrap;gap:.5rem;padding:.85rem 1.25rem;border-top:1px solid var(--border);background:var(--bg-card)}
+    .qr-btn{background:var(--bg-surface);border:1px solid var(--border);color:var(--text-main);border-radius:1.5rem;padding:.5rem 1rem;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+    .qr-btn:hover{border-color:var(--primary);color:var(--primary)}
+    .qr-btn.qr-primary{background:var(--primary);color:var(--primary-ink);border-color:var(--primary)}
+    .qr-btn.qr-primary:hover{opacity:.9}
+    .qr-input-wrap{display:flex;gap:.5rem;width:100%}
+    .qr-input-wrap input{flex:1}
+    .qr-empty{font-size:.78rem;color:var(--text-muted);padding:.4rem 0}
+
+    /* ── MODAL ── */
+    .modal-overlay { position:fixed; inset:0; z-index:9000; background:rgba(2,6,23,.85); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:1rem; }
+    .modal-box { background:#0c211d; border:1px solid #1e4a40; border-radius:1.25rem; padding:2rem; width:100%; max-width:420px; box-shadow:0 25px 60px rgba(0,0,0,.6); animation:modalEntrar .25s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes modalEntrar { from{opacity:0;transform:scale(.92) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
+    .modal-icone { width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem; }
+    .modal-icone-perigo { background:rgba(239,68,68,.12); color:#ef4444; }
+    .modal-icone-aviso  { background:rgba(251,191,36,.12); color:#fbbf24; }
+    .modal-titulo { font-size:1.125rem; font-weight:800; color:#f1f8f5; text-align:center; margin-bottom:.5rem; }
+    .modal-desc { font-size:.875rem; color:#87a69c; text-align:center; line-height:1.6; margin-bottom:1.75rem; }
+    .modal-desc strong { color:#f1f8f5; }
+    .modal-acoes { display:flex; gap:.75rem; }
+    .btn-modal-cancelar { flex:1; padding:.7rem 1rem; border-radius:.75rem; border:1px solid #1e4a40; background:transparent; color:#87a69c; font-weight:700; font-size:.875rem; cursor:pointer; font-family:inherit; }
+    .btn-modal-cancelar:hover { background:rgba(255,255,255,.05); color:#f1f8f5; }
+    .btn-modal-perigo { flex:1; padding:.7rem 1rem; border-radius:.75rem; border:none; background:#dc2626; color:white; font-weight:700; font-size:.875rem; cursor:pointer; font-family:inherit; }
+    .btn-modal-perigo:hover { background:#b91c1c; }
+    .btn-modal-sair { flex:1; padding:.7rem 1rem; border-radius:.75rem; background:rgba(251,191,36,.12); color:#fbbf24; border:1px solid rgba(251,191,36,.25); font-weight:700; font-size:.875rem; cursor:pointer; font-family:inherit; }
+    .btn-modal-sair:hover { background:rgba(251,191,36,.22); }
+
+    /* ── RESPONSIVO ── */
+    @media (max-width:768px) {
+      :root { --sidebar-w:70px; }
+      .sidebar { padding:1rem .5rem; }
+      .sidebar .logo span,.sidebar .nav-item span,.sidebar .user-footer .user-nome { display:none; }
+      .sidebar .nav-item { justify-content:center; padding:.75rem; }
+      .sidebar .logo { justify-content:center; margin-bottom:1.5rem; }
+      .sidebar .user-footer { flex-direction:column; gap:.5rem; padding-top:1rem; }
+      .main-content { padding:1rem .75rem; }
+      .stat-value { font-size:1.5rem; }
+      .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+      .info-label { min-width:90px; }
+    }
+    @media (max-width:480px) {
+      .main-content { padding:.75rem .5rem; }
+      .card,.stat-card { padding:1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo"><i data-lucide="car"></i><span>Smart System</span></div>
+    <nav class="nav-links">
+      <button onclick="trocarTela('agendamentos')" class="nav-item active" id="btn-agendamentos">
+        <i data-lucide="calendar-check"></i><span>Meus Agendamentos</span>
+      </button>
+      <button onclick="trocarTela('veiculos')" class="nav-item" id="btn-veiculos">
+        <i data-lucide="car-front"></i><span>Meus Veículos</span>
+      </button>
+      <button onclick="trocarTela('conta')" class="nav-item" id="btn-conta">
+        <i data-lucide="user-circle"></i><span>Minha Conta</span>
+      </button>
+    </nav>
+    <div class="user-footer">
+      <div class="flex items-center gap-2 overflow-hidden">
+        <div class="avatar" id="user-initial">C</div>
+        <span id="usuario-logado" class="user-nome text-sm font-bold truncate text-white" style="max-width:120px;">Cliente</span>
+      </div>
+      <button onclick="abrirModalLogout()" class="text-slate-500 hover:text-red-500 transition-colors flex-shrink-0">
+        <i data-lucide="log-out" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO -->
+  <main class="main-content">
+
+    <!-- ══ AGENDAMENTOS ══ -->
+    <div id="agendamentos" class="screen active">
+      <header class="flex justify-between items-center mb-6 gap-3 flex-wrap">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-white">Meus Agendamentos</h1>
+          <p class="text-slate-400 text-sm mt-1">Acompanhe seus serviços agendados.</p>
+        </div>
+        <button onclick="abrirFormAgendamento()" class="btn-primary">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>Novo Agendamento</span>
+        </button>
+      </header>
+
+      <!-- Assistente de Agendamento (estilo chat) -->
+      <div id="formAgendamentoCliente" class="chat-card mb-5" style="display:none;">
+        <div class="chat-head">
+          <div class="chat-head-avatar"><i data-lucide="wrench"></i></div>
+          <div>
+            <p class="chat-head-title">Assistente de Agendamento</p>
+            <p class="chat-head-sub"><span class="dot-online"></span> Resposta automática</p>
+          </div>
+          <button onclick="fecharFormAgendamento()" class="chat-close" aria-label="Fechar"><i data-lucide="x"></i></button>
+        </div>
+        <div id="chat-body" class="chat-body"></div>
+        <div id="chat-quickreplies" class="chat-quickreplies"></div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="stat-card">
+          <div class="stat-icon bg-emerald-500/10 text-emerald-500"><i data-lucide="layers"></i></div>
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total</span>
+          <div class="stat-value" id="stat-total">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-amber-500/10 text-amber-500"><i data-lucide="clock"></i></div>
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pendentes</span>
+          <div class="stat-value" id="stat-pendentes">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-green-500/10 text-green-500"><i data-lucide="check-circle"></i></div>
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Concluídos</span>
+          <div class="stat-value" id="stat-concluidos">0</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="text-sm font-bold mb-4 flex items-center gap-2">
+          <i data-lucide="list" class="text-emerald-500 w-4 h-4"></i> Histórico de Agendamentos
+        </h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Data</th><th>Hora</th><th>Serviço</th><th>Veículo</th><th>Status</th></tr></thead>
+            <tbody id="listaAgendamentos"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ VEÍCULOS ══ -->
+    <div id="veiculos" class="screen">
+      <header class="mb-6">
+        <h1 class="text-2xl font-bold tracking-tight text-white">Meus Veículos</h1>
+        <p class="text-slate-400 text-sm mt-1">Gerencie os veículos associados à sua conta.</p>
+      </header>
+
+      <div class="card mb-5">
+        <h2 class="text-sm font-bold mb-4 flex items-center gap-2" id="form-veiculo-titulo">
+          <i data-lucide="plus-circle" class="text-emerald-500 w-4 h-4"></i> Adicionar Novo Veículo
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input id="marca"  placeholder="Marca (ex: Toyota)"   class="input-field">
+          <input id="modelo" placeholder="Modelo (ex: Corolla)" class="input-field">
+          <div class="placa-wrapper">
+            <input id="placa" placeholder="Placa (ex: ABC-1234)" class="input-field"
+                   maxlength="8" style="padding-right:3rem;"
+                   oninput="this.value=this.value.toUpperCase();const l=this.value.replace(/[^A-Z0-9]/g,'');const c=document.getElementById('placa-contador');c.textContent=l.length+'/7';c.classList.toggle('limite',l.length>=7);">
+            <span class="placa-contador" id="placa-contador">0/7</span>
+          </div>
+          <input id="cor"  placeholder="Cor (ex: Cinza)"   class="input-field">
+          <input id="ano"  placeholder="Ano (ex: 2023)"    class="input-field" type="number" min="1900" max="2099">
+        </div>
+        <div class="mt-3 flex justify-end gap-3">
+          <button id="btn-cancelar-edicao-veiculo" onclick="cancelarEdicaoVeiculo()" class="btn-secondary" style="display:none;">
+            Cancelar
+          </button>
+          <button id="btn-salvar-veiculo" onclick="criarVeiculo()" class="btn-primary">
+            <i data-lucide="plus" class="w-4 h-4"></i> Adicionar
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="text-sm font-bold mb-4 flex items-center gap-2">
+          <i data-lucide="car-front" class="text-emerald-500 w-4 h-4"></i> Veículos Cadastrados
+        </h2>
+        <div id="listaVeiculos" class="flex flex-col gap-3"></div>
+      </div>
+    </div>
+
+    <!-- ══ CONTA ══ -->
+    <div id="conta" class="screen">
+      <header class="mb-6">
+        <h1 class="text-2xl font-bold tracking-tight text-white">Minha Conta</h1>
+        <p class="text-slate-400 text-sm mt-1">Seus dados e preferências de acesso.</p>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+        <!-- Avatar -->
+        <div class="card flex flex-col items-center justify-center py-8 gap-4">
+          <div class="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center text-2xl font-black" id="conta-avatar">C</div>
+          <div class="text-center">
+            <p class="font-bold text-base text-white" id="conta-nome">—</p>
+            <p class="text-xs text-slate-500 break-all" id="conta-email">—</p>
+          </div>
+          <span class="badge badge-approved mt-1" id="badge-perfil">
+            <i data-lucide="shield-check" style="width:11px;height:11px"></i> Conta Verificada
+          </span>
+        </div>
+
+        <!-- Detalhes estáticos -->
+        <div class="lg:col-span-2 card" id="info-perfil-static">
+          <div class="flex items-center justify-between mb-4 gap-2 flex-wrap">
+            <h2 class="text-sm font-bold flex items-center gap-2">
+              <i data-lucide="user" class="text-emerald-500 w-4 h-4"></i> Informações Pessoais
+            </h2>
+            <button id="btn-editar-perfil" onclick="abrirEdicaoPerfil()" class="btn-primary" style="padding:.45rem .9rem;font-size:.8rem;">
+              <i data-lucide="pencil" class="w-3 h-3"></i> Editar Perfil
+            </button>
+          </div>
+          <div class="divide-y divide-slate-800">
+            <div class="info-row"><span class="info-label">Nome</span><span class="info-value" id="conta-nome-row">—</span></div>
+            <div class="info-row"><span class="info-label">E-mail</span><span class="info-value break-all" id="conta-email-row">—</span></div>
+            <div class="info-row"><span class="info-label">Telefone</span><span class="info-value" id="conta-telefone">—</span></div>
+            <div class="info-row"><span class="info-label">Nascimento</span><span class="info-value" id="conta-nascimento">—</span></div>
+            <div class="info-row"><span class="info-label">CEP</span><span class="info-value" id="conta-cep">—</span></div>
+            <div class="info-row"><span class="info-label">Endereço</span><span class="info-value" id="conta-endereco">—</span></div>
+            <div class="info-row"><span class="info-label">Membro desde</span><span class="info-value" id="conta-membro-desde">—</span></div>
+          </div>
+          <div class="mt-5 pt-4 border-t border-slate-800">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Zona de Perigo</p>
+            <button onclick="abrirModalExcluirConta()" class="btn-danger w-full sm:w-auto">
+              <i data-lucide="trash-2" class="w-4 h-4"></i> Excluir Conta Permanentemente
+            </button>
+            <p class="text-xs text-slate-600 mt-2">Em conformidade com a LGPD, todos os seus dados pessoais serão removidos.</p>
+          </div>
+        </div>
+
+        <!-- Formulário de edição -->
+        <div class="lg:col-span-2 card" id="form-editar-perfil" style="display:none;">
+          <div class="flex items-center justify-between mb-4 gap-2 flex-wrap">
+            <h2 class="text-sm font-bold flex items-center gap-2">
+              <i data-lucide="pencil" class="text-emerald-500 w-4 h-4"></i> Editar Perfil
+            </h2>
+            <button onclick="cancelarEdicaoPerfil()" class="btn-secondary" style="padding:.45rem .9rem;font-size:.8rem;">Cancelar</button>
+          </div>
+
+          <div class="edit-section">📋 Dados Pessoais</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+            <div>
+              <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Telefone *</label>
+              <input id="edit-telefone" class="input-field" type="tel" placeholder="(11) 99999-9999" maxlength="15" oninput="maskTelefone(this)">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Data de Nascimento</label>
+              <input id="edit-nascimento" class="input-field" type="date">
+            </div>
+          </div>
+
+          <div class="edit-section">📍 Endereço</div>
+          <div class="mb-3">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">CEP</label>
+            <div class="cep-wrapper">
+              <input id="edit-cep" class="input-field" type="text" placeholder="00000-000" maxlength="9"
+                     oninput="let v=this.value.replace(/\D/g,'');if(v.length>5)v=v.slice(0,5)+'-'+v.slice(5,8);this.value=v;">
+              <button class="btn-cep" id="btn-buscar-cep" onclick="buscarCEPEdicao()">Buscar</button>
+            </div>
+            <div class="cep-status" id="edit-cep-status"></div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+            <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Logradouro</label><input id="edit-logradouro" class="input-field" placeholder="Rua das Flores"></div>
+            <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Número</label><input id="edit-numero" class="input-field" placeholder="123"></div>
+            <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Complemento</label><input id="edit-complemento" class="input-field" placeholder="Apto 4B"></div>
+            <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Bairro</label><input id="edit-bairro" class="input-field" placeholder="Centro"></div>
+            <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Cidade</label><input id="edit-cidade" class="input-field" placeholder="São Paulo"></div>
+            <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Estado</label><input id="edit-estado" class="input-field" placeholder="SP" maxlength="2" oninput="this.value=this.value.toUpperCase()"></div>
+          </div>
+
+          <div class="flex justify-end gap-3 border-t border-slate-800 pt-4 mt-2">
+            <button onclick="cancelarEdicaoPerfil()" class="btn-secondary">Cancelar</button>
+            <button onclick="salvarPerfil()" class="btn-primary" id="btn-salvar-perfil">
+              <i data-lucide="check" class="w-4 h-4"></i> Salvar alterações
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL — Excluir Veículo -->
+<div id="modal-excluir-veiculo" class="modal-overlay hidden" onclick="if(event.target===this){this.classList.add('hidden');this.classList.remove('flex')}">
+  <div class="modal-box">
+    <div class="modal-icone modal-icone-perigo"><i data-lucide="trash-2" class="w-6 h-6"></i></div>
+    <p class="modal-titulo">Remover veículo?</p>
+    <p class="modal-desc">Esta ação é <strong>irreversível</strong>. O veículo será removido da sua conta.</p>
+    <div class="modal-acoes">
+      <button class="btn-modal-cancelar" onclick="document.getElementById('modal-excluir-veiculo').classList.add('hidden');document.getElementById('modal-excluir-veiculo').classList.remove('flex')">Cancelar</button>
+      <button class="btn-modal-perigo" onclick="excluirVeiculoConfirmado()">Sim, remover</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL — Excluir Conta -->
+<div id="modal-excluir-conta" class="modal-overlay hidden" onclick="if(event.target===this)fecharModalExcluirConta()">
+  <div class="modal-box">
+    <div class="modal-icone modal-icone-perigo"><i data-lucide="trash-2" class="w-6 h-6"></i></div>
+    <p class="modal-titulo">Excluir conta permanentemente?</p>
+    <p class="modal-desc">Esta ação é <strong>irreversível</strong>. Em conformidade com a <strong>LGPD</strong>, seus dados pessoais e placas serão removidos.</p>
+    <div class="modal-acoes">
+      <button class="btn-modal-cancelar" onclick="fecharModalExcluirConta()">Cancelar</button>
+      <button class="btn-modal-perigo"   onclick="executarExclusaoConta()">Sim, excluir tudo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL — Logout -->
+<div id="modal-logout" class="modal-overlay hidden" onclick="if(event.target===this)fecharModalLogout()">
+  <div class="modal-box">
+    <div class="modal-icone modal-icone-aviso"><i data-lucide="log-out" class="w-6 h-6"></i></div>
+    <p class="modal-titulo">Encerrar sessão?</p>
+    <p class="modal-desc">Você será redirecionado para a tela de login.</p>
+    <div class="modal-acoes">
+      <button class="btn-modal-cancelar" onclick="fecharModalLogout()">Permanecer</button>
+      <button class="btn-modal-sair"     onclick="executarLogout()">Sair</button>
+    </div>
+  </div>
+</div>
+
+<script src="toast.js"></script>
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script src="completar-perfil.js"></script>
+<script src="tela_cliente.js"></script>
+<script>
+  lucide.createIcons();
+  function abrirModalLogout(){const m=document.getElementById('modal-logout');m.classList.remove('hidden');m.classList.add('flex')}
+  function fecharModalLogout(){const m=document.getElementById('modal-logout');m.classList.add('hidden');m.classList.remove('flex')}
+  function executarLogout(){fecharModalLogout();if(typeof logout==='function')logout();else{localStorage.clear();window.location.href='login.html';}}
+  function abrirModalExcluirConta(){const m=document.getElementById('modal-excluir-conta');m.classList.remove('hidden');m.classList.add('flex')}
+  function fecharModalExcluirConta(){const m=document.getElementById('modal-excluir-conta');m.classList.add('hidden');m.classList.remove('flex')}
+  function executarExclusaoConta(){fecharModalExcluirConta();if(typeof excluirConta==='function')excluirConta();}
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){fecharModalLogout();fecharModalExcluirConta();}});
+</script>
+</body>
+</html>

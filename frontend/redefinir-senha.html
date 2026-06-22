@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redefinir Senha — Smart System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>h1,h2,h3,.logo,.btn-primary,.stat-value,.modal-titulo{font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
+    :root {
+      --bg-deep: #061412; --bg-surface: #0c211d; --bg-card: #11302a;
+      --border: #1e4a40; --primary: #16a34a;
+      --text-main: #f1f8f5; --text-muted: #87a69c;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-deep); color: var(--text-main);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 20px; box-sizing: border-box;
+    }
+    .bg-glow {
+      position: absolute; width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(22,163,74,.15) 0%, rgba(2,6,23,0) 70%);
+      border-radius: 50%; z-index: -1; filter: blur(60px);
+    }
+    .container { width: 100%; max-width: 420px; z-index: 10; animation: fadeIn .4s ease-out; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .box {
+      background: var(--bg-surface); border: 1px solid var(--border);
+      border-radius: 1.5rem; padding: 2.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,.5);
+    }
+    .input-group { margin-bottom: 1.25rem; }
+    .input-label {
+      display: block; font-size: .75rem; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: .05em; margin-bottom: .5rem;
+    }
+    .input-wrapper { position: relative; }
+    .input-icon {
+      position: absolute; left: 1rem; top: 50%;
+      transform: translateY(-50%); color: var(--text-muted); pointer-events: none; z-index: 10;
+    }
+    input {
+      background: var(--bg-card) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--text-main) !important;
+      padding: .875rem 3.5rem .875rem 3.5rem !important;
+      border-radius: .75rem; outline: none;
+      width: 100%; box-sizing: border-box; transition: all .2s;
+    }
+    input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 2px rgba(22,163,74,.1); }
+    .toggle-password {
+      position: absolute; right: 1rem; top: 50%;
+      transform: translateY(-50%); color: var(--text-muted);
+      cursor: pointer; background: none; border: none;
+      display: flex; align-items: center; transition: color .2s;
+    }
+    .toggle-password:hover { color: var(--text-main); }
+    .rule-item { display: flex; align-items: center; gap: .375rem; transition: all .3s; }
+    .rule-valid { color: #22c55e !important; }
+    .btn-primary {
+      background: var(--primary); color: var(--primary-ink);
+      width: 100%; padding: .875rem; border-radius: .75rem;
+      font-weight: 700; font-size: 1rem; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      margin-top: 1.5rem; transition: all .2s;
+    }
+    .btn-primary:hover { background: #15803d; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .alerta {
+      padding: .75rem; border-radius: .5rem; font-size: .875rem;
+      text-align: center; margin-top: 1rem; display: none;
+    }
+    .alerta.sucesso { background: rgba(34,197,94,.1); color: #22c55e; border: 1px solid rgba(34,197,94,.2); }
+    .alerta.erro    { background: rgba(239,68,68,.1);  color: #ef4444; border: 1px solid rgba(239,68,68,.2); }
+
+    /* Token inválido */
+    .token-invalido {
+      text-align: center; padding: 2rem 0;
+    }
+    .token-invalido .icon-erro {
+      width: 72px; height: 72px; border-radius: 20px;
+      margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
+      background: rgba(239,68,68,.12); color: #ef4444;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow" style="top:-100px;right:-100px;"></div>
+  <div class="bg-glow" style="bottom:-100px;left:-100px;opacity:.5;"></div>
+
+  <div class="container">
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center p-3 bg-emerald-600 rounded-2xl shadow-lg shadow-emerald-900/20 mb-4">
+        <i data-lucide="lock-keyhole" class="w-8 h-8 text-white"></i>
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-white mb-1">Nova Senha</h1>
+      <p class="text-slate-400 text-sm">Crie uma senha forte para proteger sua conta.</p>
+    </div>
+
+    <!-- FORMULÁRIO (mostrado se token válido) -->
+    <div class="box" id="form-box">
+
+      <div id="loading" class="text-center py-4 text-slate-400">
+        <i data-lucide="loader-2" class="w-6 h-6 animate-spin inline-block mb-2"></i>
+        <p class="text-sm">Validando link...</p>
+      </div>
+
+      <div id="form-conteudo" style="display:none;">
+
+        <div class="input-group">
+          <label class="input-label">Nova Senha</label>
+          <div class="input-wrapper">
+            <i data-lucide="lock" class="w-5 h-5 input-icon"></i>
+            <input id="nova-senha" type="password" placeholder="No mínimo 6 caracteres"
+                   oninput="avaliarSenha(this.value)">
+            <button type="button" class="toggle-password"
+                    onclick="toggleSenha('nova-senha','eye1','eyeoff1')">
+              <i data-lucide="eye"     id="eye1"    class="w-5 h-5 block"></i>
+              <i data-lucide="eye-off" id="eyeoff1" class="w-5 h-5 hidden"></i>
+            </button>
+          </div>
+
+          <ul class="mt-3 space-y-1 text-xs font-medium text-slate-500">
+            <li id="rule-length" class="rule-item">
+              <i data-lucide="x"     class="w-3 h-3 icon-invalid"></i>
+              <i data-lucide="check" class="w-3 h-3 icon-valid hidden"></i>
+              <span>Mínimo de 6 caracteres</span>
+            </li>
+            <li id="rule-upper" class="rule-item">
+              <i data-lucide="x"     class="w-3 h-3 icon-invalid"></i>
+              <i data-lucide="check" class="w-3 h-3 icon-valid hidden"></i>
+              <span>Pelo menos 1 letra maiúscula</span>
+            </li>
+            <li id="rule-lower" class="rule-item">
+              <i data-lucide="x"     class="w-3 h-3 icon-invalid"></i>
+              <i data-lucide="check" class="w-3 h-3 icon-valid hidden"></i>
+              <span>Pelo menos 1 letra minúscula</span>
+            </li>
+            <li id="rule-special" class="rule-item">
+              <i data-lucide="x"     class="w-3 h-3 icon-invalid"></i>
+              <i data-lucide="check" class="w-3 h-3 icon-valid hidden"></i>
+              <span>1 caractere especial (!@#$%)</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Confirmar Nova Senha</label>
+          <div class="input-wrapper">
+            <i data-lucide="shield-check" class="w-5 h-5 input-icon"></i>
+            <input id="confirmar-senha" type="password" placeholder="Repita a nova senha">
+            <button type="button" class="toggle-password"
+                    onclick="toggleSenha('confirmar-senha','eye2','eyeoff2')">
+              <i data-lucide="eye"     id="eye2"    class="w-5 h-5 block"></i>
+              <i data-lucide="eye-off" id="eyeoff2" class="w-5 h-5 hidden"></i>
+            </button>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="btn-salvar" onclick="redefinirSenha()">
+          <i data-lucide="check" class="w-5 h-5"></i>
+          <span>Salvar Nova Senha</span>
+        </button>
+
+        <div id="alerta" class="alerta"></div>
+      </div>
+
+      <!-- Token inválido/expirado -->
+      <div id="token-invalido" class="token-invalido" style="display:none;">
+        <div class="icon-erro">
+          <i data-lucide="x-circle" style="width:36px;height:36px"></i>
+        </div>
+        <p class="font-bold text-white mb-1">Link inválido ou expirado</p>
+        <p class="text-slate-400 text-sm mb-4">Solicite um novo link de recuperação de senha.</p>
+        <a href="recuperar-senha.html"
+           style="display:inline-flex;align-items:center;gap:8px;background:#16a34a;color:white;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:700;">
+          <i data-lucide="mail" style="width:16px;height:16px"></i>
+          Solicitar novo link
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    lucide.createIcons();
+
+    const params = new URLSearchParams(window.location.search);
+    const TOKEN  = params.get('token');
+
+    //Valida token ao carregar
+    async function validarToken() {
+      if (!TOKEN) { mostrarTokenInvalido(); return; }
+
+      try {
+        const res = await fetch(`${API}/auth/validar-recuperacao?token=${TOKEN}`);
+        const data = await res.json();
+
+        if (!res.ok || !data.valido) {
+          mostrarTokenInvalido();
+        } else {
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('form-conteudo').style.display = 'block';
+          lucide.createIcons();
+        }
+      } catch {
+        mostrarTokenInvalido();
+      }
+    }
+
+    function mostrarTokenInvalido() {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('token-invalido').style.display = 'block';
+      lucide.createIcons();
+    }
+
+    //Toggle senha
+    function toggleSenha(inputId, eyeId, eyeOffId) {
+      const input  = document.getElementById(inputId);
+      const eye    = document.getElementById(eyeId);
+      const eyeOff = document.getElementById(eyeOffId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        eye.classList.add('hidden'); eyeOff.classList.remove('hidden');
+      } else {
+        input.type = 'password';
+        eye.classList.remove('hidden'); eyeOff.classList.add('hidden');
+      }
+    }
+
+    // Avalia força da senha 
+    function avaliarSenha(senha) {
+      const regras = [
+        { id: 'rule-length',  valid: senha.length >= 8 },
+        { id: 'rule-upper',   valid: /[A-Z]/.test(senha) },
+        { id: 'rule-lower',   valid: /[a-z]/.test(senha) },
+        { id: 'rule-special', valid: /[!@#$%^&*(),.?":{}|<>]/.test(senha) },
+      ];
+      regras.forEach(({ id, valid }) => {
+        const item = document.getElementById(id);
+        const inv  = item.querySelector('.icon-invalid');
+        const val  = item.querySelector('.icon-valid');
+        if (valid) { item.classList.add('rule-valid'); inv.classList.add('hidden'); val.classList.remove('hidden'); }
+        else        { item.classList.remove('rule-valid'); inv.classList.remove('hidden'); val.classList.add('hidden'); }
+      });
+    }
+
+    function senhaValida(senha) {
+      return senha.length >= 6 && /[A-Z]/.test(senha) && /[a-z]/.test(senha) && /[!@#$%^&*(),.?":{}|<>]/.test(senha);
+    }
+
+    // Redefine senha
+    async function redefinirSenha() {
+      const novaSenha     = document.getElementById('nova-senha').value;
+      const confirmar     = document.getElementById('confirmar-senha').value;
+      const alerta        = document.getElementById('alerta');
+      const btn           = document.getElementById('btn-salvar');
+
+      alerta.style.display = 'none';
+
+      if (!senhaValida(novaSenha)) {
+        alerta.textContent = 'A senha não cumpre todos os requisitos.';
+        alerta.className   = 'alerta erro';
+        alerta.style.display = 'block';
+        return;
+      }
+
+      if (novaSenha !== confirmar) {
+        alerta.textContent = 'As senhas não coincidem.';
+        alerta.className   = 'alerta erro';
+        alerta.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>Salvando...</span>';
+
+      try {
+        const res  = await fetch(`${API}/auth/redefinir-senha`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: TOKEN, novaSenha })
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.erro || 'Erro ao redefinir senha.');
+
+        alerta.textContent   = data.mensagem;
+        alerta.className     = 'alerta sucesso';
+        alerta.style.display = 'block';
+
+        // Redireciona para login após 2.5s
+        setTimeout(() => { window.location.href = 'login.html'; }, 2500);
+
+      } catch (err) {
+        alerta.textContent   = err.message;
+        alerta.className     = 'alerta erro';
+        alerta.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i><span>Salvar Nova Senha</span>';
+        lucide.createIcons();
+      }
+    }
+
+    // INIT
+    validarToken();
+  </script>
+</body>
+</html>

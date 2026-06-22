@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart System - Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>h1,h2,h3,.logo,.btn-primary,.stat-value,.modal-titulo{font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
+    :root {
+      --bg-deep: #061412; --bg-surface: #0c211d; --bg-card: #11302a;
+      --border: #1e4a40; --primary: #16a34a;
+      --text-main: #f1f8f5; --text-muted: #87a69c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-deep); color: var(--text-main);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 1rem; overflow-x: hidden;
+    }
+    .bg-glow {
+      position: fixed; width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(22,163,74,.15) 0%, rgba(2,6,23,0) 70%);
+      border-radius: 50%; z-index: -1; filter: blur(60px);
+    }
+    .login-container { width: 100%; max-width: 400px; animation: fadeIn .5s ease-out; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .login-box {
+      background: var(--bg-surface); border: 1px solid var(--border);
+      border-radius: 1.5rem; padding: 2.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,.5);
+    }
+    .input-group { margin-bottom: 1.5rem; }
+    .input-label {
+      display: block; font-size: .75rem; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: .05em; margin-bottom: .5rem;
+    }
+    .input-wrapper { position: relative; }
+    .input-icon {
+      position: absolute; left: 1rem; top: 50%;
+      transform: translateY(-50%); color: var(--text-muted);
+      pointer-events: none; z-index: 10;
+    }
+    input {
+      background: var(--bg-card) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--text-main) !important;
+      padding: .875rem 1rem .875rem 3.5rem !important;
+      border-radius: .75rem; outline: none;
+      width: 100%; transition: all .2s;
+    }
+    .input-with-eye { padding-right: 3.5rem !important; }
+    input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 2px rgba(22,163,74,.1); }
+    input.input-erro { border-color: #ef4444 !important; box-shadow: 0 0 0 2px rgba(239,68,68,.1); }
+    .toggle-password {
+      position: absolute; right: 1rem; top: 50%;
+      transform: translateY(-50%); color: var(--text-muted);
+      cursor: pointer; background: none; border: none; padding: 0;
+      display: flex; align-items: center; transition: color .2s;
+    }
+    .toggle-password:hover { color: var(--text-main); }
+    .btn-login {
+      background: var(--primary); color: white;
+      width: 100%; padding: .875rem; border-radius: .75rem;
+      font-weight: 700; font-size: 1rem; transition: all .2s;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      margin-top: 1rem; border: none; cursor: pointer; font-family: inherit;
+    }
+    .btn-login:hover { background: #15803d; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(22,163,74,.3); }
+    .btn-login:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    /* Caixa de erro — visível por padrão quando tem conteúdo */
+    .erro-box {
+      display: none;
+      background: rgba(239,68,68,.1); color: #ef4444;
+      padding: .75rem 1rem; border-radius: .75rem;
+      font-size: .875rem; text-align: center;
+      margin-top: .75rem;
+      border: 1px solid rgba(239,68,68,.25);
+      animation: shakeX .4s ease;
+    }
+    @keyframes shakeX {
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-6px)}
+      40%{transform:translateX(6px)}
+      60%{transform:translateX(-4px)}
+      80%{transform:translateX(4px)}
+    }
+    .erro-box.sucesso {
+      background: rgba(34,197,94,.1); color: #22c55e;
+      border-color: rgba(34,197,94,.25);
+    }
+
+    .link-secundario {
+      text-align: right; margin-bottom: .5rem;
+      font-size: .8125rem;
+    }
+    .link-secundario a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .link-secundario a:hover { text-decoration: underline; }
+    .cadastro-link {
+      text-align: center; margin-top: 1.5rem;
+      font-size: .875rem; color: var(--text-muted);
+      padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .cadastro-link a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .cadastro-link a:hover { text-decoration: underline; }
+    .btn-reenviar {
+      display: none; margin-top: .75rem; width: 100%;
+      border: 1px solid var(--primary); padding: .65rem 1rem;
+      border-radius: .75rem; color: var(--primary);
+      background: transparent; cursor: pointer; font-size: .875rem;
+      font-weight: 600; transition: all .2s; font-family: inherit;
+    }
+    .btn-reenviar:hover { background: rgba(22,163,74,.08); }
+
+    @media (max-width: 480px) {
+      .login-box { padding: 1.75rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow" style="top:-100px;left:-100px;"></div>
+  <div class="bg-glow" style="bottom:-100px;right:-100px;opacity:.5;"></div>
+
+  <div class="login-container">
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center p-3 bg-emerald-600 rounded-2xl shadow-lg shadow-emerald-900/20 mb-4">
+        <i data-lucide="car" class="w-8 h-8 text-white"></i>
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-white mb-1">Smart System</h1>
+      <p class="text-slate-400 text-sm">Bem-vindo de volta! Faça login para continuar.</p>
+    </div>
+
+    <div class="login-box">
+      <div class="input-group">
+        <label class="input-label" for="email">E-mail</label>
+        <div class="input-wrapper">
+          <i data-lucide="mail" class="w-5 h-5 input-icon"></i>
+          <input id="email" type="email" placeholder="seu@email.com" autocomplete="email"
+                 oninput="this.value=this.value.toLowerCase();limparErro()">
+        </div>
+      </div>
+
+      <div class="input-group" style="margin-bottom:.5rem;">
+        <label class="input-label" for="senha">Senha</label>
+        <div class="input-wrapper">
+          <i data-lucide="lock" class="w-5 h-5 input-icon"></i>
+          <input id="senha" type="password" placeholder="••••••••" class="input-with-eye"
+                 oninput="limparErro()">
+          <button type="button" class="toggle-password" onclick="togglePassword()">
+            <i data-lucide="eye"     id="icon-eye"     class="w-5 h-5 block"></i>
+            <i data-lucide="eye-off" id="icon-eye-off" class="w-5 h-5 hidden"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="link-secundario">
+        <a href="recuperar-senha.html">Esqueci minha senha</a>
+      </div>
+
+      <button class="btn-login" id="btn-entrar" onclick="executarLogin()">
+        <span>Entrar</span>
+        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Caixa de erro com ícone -->
+      <div id="erro" class="erro-box"></div>
+
+      <button id="btn-reenviar" class="btn-reenviar" onclick="reenviarEmail()">
+        <i data-lucide="mail" style="width:14px;height:14px;display:inline;margin-right:4px;"></i>
+        Reenviar e-mail de confirmação
+      </button>
+
+      <div class="cadastro-link">
+        Ainda não tem conta? <a href="register.html">Cadastre-se aqui</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="toast.js"></script>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+
+  <script>
+    lucide.createIcons();
+
+    function togglePassword() {
+      const input  = document.getElementById('senha');
+      const eye    = document.getElementById('icon-eye');
+      const eyeOff = document.getElementById('icon-eye-off');
+      if (input.type === 'password') {
+        input.type = 'text';
+        eye.classList.add('hidden'); eyeOff.classList.remove('hidden');
+      } else {
+        input.type = 'password';
+        eye.classList.remove('hidden'); eyeOff.classList.add('hidden');
+      }
+    }
+
+    function mostrarErro(msg, tipo = 'erro') {
+      const erroDiv = document.getElementById('erro');
+      erroDiv.textContent  = msg;
+      erroDiv.style.display = 'block';
+      erroDiv.className    = tipo === 'sucesso' ? 'erro-box sucesso' : 'erro-box';
+
+      // Destaca os campos em vermelho se for erro de credenciais
+      if (tipo === 'erro') {
+        document.getElementById('email').classList.add('input-erro');
+        document.getElementById('senha').classList.add('input-erro');
+      }
+    }
+
+    function limparErro() {
+      const erroDiv = document.getElementById('erro');
+      erroDiv.style.display = 'none';
+      document.getElementById('email').classList.remove('input-erro');
+      document.getElementById('senha').classList.remove('input-erro');
+    }
+
+    async function executarLogin() {
+      const btn = document.getElementById('btn-entrar');
+      limparErro();
+      document.getElementById('btn-reenviar').style.display = 'none';
+
+      const email = document.getElementById('email').value.trim();
+      const senha = document.getElementById('senha').value;
+
+      if (!email || !senha) {
+        mostrarErro('Preencha o e-mail e a senha.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>Entrando...</span>';
+
+      try {
+        await login();
+      } catch(e) {
+        // erro já tratado pelo auth.js
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Entrar</span><i data-lucide="arrow-right" class="w-5 h-5"></i>';
+        lucide.createIcons();
+
+        // Verifica se o auth.js colocou algo no #erro e garante visibilidade
+        const erroDiv = document.getElementById('erro');
+        if (erroDiv.innerText && erroDiv.style.display !== 'block') {
+          erroDiv.style.display = 'block';
+        }
+      }
+    }
+
+    document.addEventListener('keypress', e => {
+      if (e.key === 'Enter') executarLogin();
+    });
+  </script>
+</body>
+</html>

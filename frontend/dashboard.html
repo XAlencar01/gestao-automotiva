@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoGestão CRM - Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>h1,h2,h3,.logo,.btn-primary,.stat-value,.modal-titulo{font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
+    :root{--bg-deep:#061412;--bg-surface:#0c211d;--bg-card:#11302a;--border:#1e4a40;--primary:#16a34a;--primary-ink:#04140d;--accent:#3b82f6;--text-main:#f1f8f5;--text-muted:#87a69c}
+    body{margin:0;font-family:'Inter',system-ui,sans-serif;background:var(--bg-deep);color:var(--text-main);overflow-x:hidden}
+    .app-container{display:flex;min-height:100vh}
+    .sidebar{width:260px;background:var(--bg-surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem;position:fixed;height:100vh;z-index:40}
+    .logo{display:flex;align-items:center;gap:.75rem;font-size:1.25rem;font-weight:800;color:#fff;margin-bottom:2.5rem}
+    .nav-links{flex:1;display:flex;flex-direction:column;gap:.5rem}
+    .nav-item{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-radius:.5rem;color:var(--text-muted);text-decoration:none;font-weight:500;transition:all .2s}
+    .nav-item:hover,.nav-item.active{background:var(--primary);color:white}
+    .nav-item-super{border:1px solid rgba(251,191,36,.2);background:rgba(251,191,36,.05);color:#fbbf24!important}
+    .nav-item-super:hover,.nav-item-super.active{background:rgba(251,191,36,.15)!important;border-color:rgba(251,191,36,.4);color:#fbbf24!important}
+    .main-content{flex:1;margin-left:260px;padding:2.5rem}
+    .user-footer{margin-top:auto;padding-top:1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .avatar{width:32px;height:32px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.8rem}
+    .modal-overlay{position:fixed;inset:0;z-index:9000;background:rgba(2,6,23,.85);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+    .modal-box{background:#0c211d;border:1px solid #1e4a40;border-radius:.75rem;padding:2rem;width:100%;max-width:420px;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:mE .15s ease-out}
+    @keyframes mE{from{opacity:0;transform:scale(.92) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .modal-icone{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;background:rgba(251,191,36,.12);color:#fbbf24}
+    .modal-titulo{font-size:1.125rem;font-weight:800;color:#f1f8f5;text-align:center;margin-bottom:.5rem}
+    .modal-desc{font-size:.875rem;color:#87a69c;text-align:center;line-height:1.6;margin-bottom:1.75rem}
+    .modal-acoes{display:flex;gap:.75rem}
+    .btn-mc{flex:1;padding:.7rem 1rem;border-radius:.75rem;border:1px solid #1e4a40;background:transparent;color:#87a69c;font-weight:700;font-size:.875rem;cursor:pointer;transition:all .2s;font-family:inherit}
+    .btn-mc:hover{background:rgba(255,255,255,.05);color:#f1f8f5}
+    .btn-ms{flex:1;padding:.7rem 1rem;border-radius:.75rem;background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.25);font-weight:700;font-size:.875rem;cursor:pointer;transition:all .2s;font-family:inherit}
+    .btn-ms:hover{background:rgba(251,191,36,.22)}
+    @media(max-width:1024px){.sidebar{width:80px;padding:1.5rem .75rem}.sidebar span,.logo span{display:none}.main-content{margin-left:80px}}
+    .stat-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:.625rem;padding:1.5rem;display:flex;flex-direction:column;gap:.5rem;transition:border-color .15s}
+    .stat-card:hover{border-color:var(--primary)}
+    .stat-icon{padding:.5rem;border-radius:.5rem;width:fit-content;margin-bottom:.5rem}
+    .stat-value{font-size:2rem;font-weight:800;letter-spacing:-.025em}
+    .chart-container,.table-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:.625rem;padding:1.5rem}
+    #agendaHoje{max-height:340px;overflow-y:auto;padding-right:4px}
+    #agendaHoje::-webkit-scrollbar{width:4px}
+    #agendaHoje::-webkit-scrollbar-track{background:transparent}
+    #agendaHoje::-webkit-scrollbar-thumb{background:#1e4a40;border-radius:4px}
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo"><i data-lucide="car"></i><span>AutoGestão</span></div>
+    <nav class="nav-links">
+      <a href="clientes.html" class="nav-item"><i data-lucide="users"></i><span>Clientes</span></a>
+      <a href="dashboard.html" class="nav-item active"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
+      <a href="veiculos.html" class="nav-item"><i data-lucide="car-front"></i><span>Veículos</span></a>
+      <a href="agendamentos.html" class="nav-item"><i data-lucide="calendar-check"></i><span>Agendamentos</span></a>
+      <a href="agenda.html" class="nav-item"><i data-lucide="calendar-range"></i><span>Calendário</span></a>
+      <a href="servicos.html" class="nav-item"><i data-lucide="wrench"></i><span>Serviços</span></a>
+      <a href="funcionarios.html" class="nav-item"><i data-lucide="user-check"></i><span>Funcionários</span></a>
+      <a href="relatorios.html" class="nav-item"><i data-lucide="bar-chart-3"></i><span>Relatórios</span></a>
+      <a href="admins.html" class="nav-item nav-item-super hidden" id="nav-admins">
+        <i data-lucide="shield"></i><span>Administradores</span>
+      </a>
+    </nav>
+    <div class="user-footer">
+      <div class="flex items-center gap-3 overflow-hidden">
+        <div class="avatar" id="user-initial">U</div>
+        <span id="usuario-logado" class="text-sm font-bold truncate w-24">Usuário</span>
+      </div>
+      <button onclick="abrirModalLogout()" class="text-slate-500 hover:text-red-500 transition-colors">
+        <i data-lucide="log-out" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </aside>
+  <main class="main-content">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold tracking-tight text-white">Dashboard</h1>
+      <p class="text-slate-400 text-sm">Bem-vindo de volta! Aqui está o resumo da sua operação.</p>
+    </header>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="stat-card"><div class="stat-icon bg-emerald-500/10 text-emerald-500"><i data-lucide="layers"></i></div><span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total</span><div class="stat-value" id="total">0</div></div>
+      <div class="stat-card"><div class="stat-icon bg-amber-500/10 text-amber-500"><i data-lucide="clock"></i></div><span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pendentes</span><div class="stat-value" id="pendentes">0</div></div>
+      <div class="stat-card"><div class="stat-icon bg-green-500/10 text-green-500"><i data-lucide="check-circle"></i></div><span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Aprovados</span><div class="stat-value" id="aprovados">0</div></div>
+      <div class="stat-card"><div class="stat-icon bg-red-500/10 text-red-500"><i data-lucide="x-circle"></i></div><span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Recusados</span><div class="stat-value" id="recusados">0</div></div>
+    </div>
+    <div class="chart-container mb-8">
+      <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="users" class="text-emerald-500 w-5 h-5"></i> Funil de Clientes</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="funil-clientes">
+        <div class="stat-card"><span class="text-xs font-bold text-slate-500 uppercase">Novos</span><div class="stat-value" id="funil-novo">0</div></div>
+        <div class="stat-card"><span class="text-xs font-bold text-slate-500 uppercase">Ativos</span><div class="stat-value" id="funil-ativo">0</div></div>
+        <div class="stat-card"><span class="text-xs font-bold text-slate-500 uppercase">Recorrentes</span><div class="stat-value" id="funil-recorrente">0</div></div>
+        <div class="stat-card"><span class="text-xs font-bold text-slate-500 uppercase">Inativos</span><div class="stat-value" id="funil-inativo">0</div></div>
+      </div>
+      <button onclick="window.location.href='clientes.html'" class="w-full mt-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-bold transition-all">Ver todos os Clientes →</button>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2">
+        <div class="chart-container ">
+          <h2 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="trending-up" class="text-emerald-500 w-5 h-5"></i> Agendamentos por dia</h2>
+          <canvas id="grafico" height="150"></canvas>
+        </div>
+      </div>
+      <div class="lg:col-span-1">
+        <div class="table-card  h-full flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold flex items-center gap-2"><i data-lucide="calendar" class="text-emerald-500 w-5 h-5"></i> Agenda de Hoje</h2>
+            <span id="contador-hoje" class="text-xs font-bold text-slate-500 bg-slate-800 px-2 py-1 rounded-full"></span>
+          </div>
+          <div id="agendaHoje" class="flex-1"></div>
+          <button onclick="window.location.href='agendamentos.html'" class="w-full mt-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-bold transition-all">Ver Agenda Completa →</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="modal-logout" class="modal-overlay hidden" onclick="if(event.target===this)fecharModalLogout()">
+  <div class="modal-box">
+    <div class="modal-icone"><i data-lucide="log-out" class="w-6 h-6"></i></div>
+    <p class="modal-titulo">Encerrar sessão?</p>
+    <p class="modal-desc">Deseja mesmo sair do sistema agora?</p>
+    <div class="modal-acoes">
+      <button class="btn-mc" onclick="fecharModalLogout()">Permanecer</button>
+      <button class="btn-ms" onclick="executarLogout()">Sair</button>
+    </div>
+  </div>
+</div>
+<script src="config.js"></script>
+<script src="toast.js"></script>
+<script src="auth.js"></script>
+<script src="dashboard.js"></script>
+<script>
+  lucide.createIcons();
+  function abrirModalLogout(){const m=document.getElementById('modal-logout');m.classList.remove('hidden');m.classList.add('flex')}
+  function fecharModalLogout(){const m=document.getElementById('modal-logout');m.classList.add('hidden');m.classList.remove('flex')}
+  function executarLogout(){fecharModalLogout();if(typeof logout==='function')logout();else{localStorage.clear();window.location.href='login.html'}}
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharModalLogout()});
+    window.onload=()=>{
+    try{
+            // Mostra 'Administradores' só pro superadmin
+      try{const _t=localStorage.getItem('token');if(_t){const _p=JSON.parse(atob(_t.split('.')[1]));if(_p.tipo==='superadmin')document.getElementById('nav-admins')?.classList.remove('hidden')}}catch(_e){}
+      if(typeof verificarLogin==='function')verificarLogin();
+      if(typeof mostrarUsuario==='function'){
+        mostrarUsuario();
+        setTimeout(()=>{
+          const s=document.getElementById('usuario-logado');
+          if(s&&s.innerText!=='Usuário')document.getElementById('user-initial').innerText=s.innerText.charAt(0).toUpperCase()
+        },300)
+      }
+      if(typeof ocultarParaCliente==='function')ocultarParaCliente();
+    }catch(e){console.error(e)}
+  };
+</script>
+</body>
+</html>

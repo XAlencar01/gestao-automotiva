@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperar Senha — Smart System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>h1,h2,h3,.logo,.btn-primary,.stat-value,.modal-titulo{font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
+    :root {
+      --bg-deep: #061412; --bg-surface: #0c211d; --bg-card: #11302a;
+      --border: #1e4a40; --primary: #16a34a;
+      --text-main: #f1f8f5; --text-muted: #87a69c;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-deep); color: var(--text-main);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 20px; box-sizing: border-box;
+    }
+    .bg-glow {
+      position: absolute; width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(22,163,74,.15) 0%, rgba(2,6,23,0) 70%);
+      border-radius: 50%; z-index: -1; filter: blur(60px);
+    }
+    .container {
+      width: 100%; max-width: 420px; z-index: 10;
+      animation: fadeIn .4s ease-out;
+    }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem; padding: 2.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,.5);
+    }
+    .input-label {
+      display: block; font-size: .75rem; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: .05em; margin-bottom: .5rem;
+    }
+    .input-wrapper { position: relative; }
+    .input-icon {
+      position: absolute; left: 1rem; top: 50%;
+      transform: translateY(-50%); color: var(--text-muted);
+      pointer-events: none; z-index: 10;
+    }
+    input {
+      background: var(--bg-card) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--text-main) !important;
+      padding: .875rem 1rem .875rem 3.5rem !important;
+      border-radius: .75rem; outline: none;
+      width: 100%; box-sizing: border-box; transition: all .2s;
+    }
+    input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 2px rgba(22,163,74,.1); }
+    .btn-primary {
+      background: var(--primary); color: var(--primary-ink);
+      width: 100%; padding: .875rem; border-radius: .75rem;
+      font-weight: 700; font-size: 1rem; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      margin-top: 1.5rem; transition: all .2s;
+    }
+    .btn-primary:hover { background: #15803d; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(22,163,74,.3); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .alerta {
+      padding: .75rem; border-radius: .5rem;
+      font-size: .875rem; text-align: center;
+      margin-top: 1rem; display: none;
+    }
+    .alerta.sucesso { background: rgba(34,197,94,.1); color: #22c55e; border: 1px solid rgba(34,197,94,.2); }
+    .alerta.erro    { background: rgba(239,68,68,.1); color: #ef4444; border: 1px solid rgba(239,68,68,.2); }
+    .voltar {
+      text-align: center; margin-top: 1.5rem;
+      font-size: .875rem; color: var(--text-muted);
+    }
+    .voltar a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .voltar a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="bg-glow" style="top:-100px;left:-100px;"></div>
+  <div class="bg-glow" style="bottom:-100px;right:-100px;opacity:.5;"></div>
+
+  <div class="container">
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center p-3 bg-emerald-600 rounded-2xl shadow-lg shadow-emerald-900/20 mb-4">
+        <i data-lucide="key-round" class="w-8 h-8 text-white"></i>
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-white mb-1">Recuperar Senha</h1>
+      <p class="text-slate-400 text-sm">Digite seu email e enviaremos um link para redefinir sua senha.</p>
+    </div>
+
+    <div class="box">
+      <label class="input-label" for="email">Endereço de Email</label>
+      <div class="input-wrapper">
+        <i data-lucide="mail" class="w-5 h-5 input-icon"></i>
+        <input id="email" type="email" placeholder="seu@email.com"
+               oninput="this.value=this.value.toLowerCase()">
+      </div>
+
+      <button class="btn-primary" id="btn-enviar" onclick="enviarRecuperacao()">
+        <i data-lucide="send" class="w-5 h-5"></i>
+        <span>Enviar Link de Recuperação</span>
+      </button>
+
+      <div id="alerta" class="alerta"></div>
+
+      <div class="voltar">
+        Lembrou a senha? <a href="login.html">Voltar ao login</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    lucide.createIcons();
+
+    async function enviarRecuperacao() {
+      const email  = document.getElementById('email').value.trim();
+      const alerta = document.getElementById('alerta');
+      const btn    = document.getElementById('btn-enviar');
+
+      alerta.style.display = 'none';
+
+      if (!email || !email.includes('@')) {
+        alerta.textContent  = 'Por favor, insira um email válido.';
+        alerta.className    = 'alerta erro';
+        alerta.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>Enviando...</span>';
+
+      try {
+        const res  = await fetch(`${API}/auth/esqueci-senha`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+
+        // Sempre mostra sucesso (segurança — não revela se email existe)
+        alerta.textContent   = data.mensagem || 'Se este email estiver cadastrado, você receberá as instruções em breve.';
+        alerta.className     = 'alerta sucesso';
+        alerta.style.display = 'block';
+        document.getElementById('email').value = '';
+
+      } catch {
+        alerta.textContent   = 'Erro de conexão. Tente novamente.';
+        alerta.className     = 'alerta erro';
+        alerta.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="send" class="w-5 h-5"></i><span>Enviar Link de Recuperação</span>';
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener('keypress', e => {
+      if (e.key === 'Enter') enviarRecuperacao();
+    });
+  </script>
+</body>
+</html>

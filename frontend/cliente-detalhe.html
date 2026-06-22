@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoGestão CRM - Perfil do Cliente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>h1,h2,h3,.logo,.btn-primary,.stat-value,.modal-titulo{font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
+    :root{--bg-deep:#061412;--bg-surface:#0c211d;--bg-card:#11302a;--border:#1e4a40;--primary:#16a34a;--primary-ink:#04140d;--accent:#3b82f6;--text-main:#f1f8f5;--text-muted:#87a69c}
+    body{margin:0;font-family:'Inter',system-ui,sans-serif;background:var(--bg-deep);color:var(--text-main);overflow-x:hidden}
+    .app-container{display:flex;min-height:100vh}
+    .sidebar{width:260px;background:var(--bg-surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem;position:fixed;height:100vh;z-index:40}
+    .logo{display:flex;align-items:center;gap:.75rem;font-size:1.25rem;font-weight:800;color:#fff;margin-bottom:2.5rem}
+    .nav-links{flex:1;display:flex;flex-direction:column;gap:.5rem}
+    .nav-item{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-radius:.5rem;color:var(--text-muted);text-decoration:none;font-weight:500;transition:all .2s}
+    .nav-item:hover,.nav-item.active{background:var(--primary);color:white}
+    .nav-item-super{border:1px solid rgba(251,191,36,.2);background:rgba(251,191,36,.05);color:#fbbf24!important}
+    .nav-item-super:hover,.nav-item-super.active{background:rgba(251,191,36,.15)!important;border-color:rgba(251,191,36,.4);color:#fbbf24!important}
+    .main-content{flex:1;margin-left:260px;padding:2.5rem}
+    .user-footer{margin-top:auto;padding-top:1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .avatar{width:32px;height:32px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.8rem}
+    .card{background:var(--bg-surface);border:1px solid var(--border);border-radius:.625rem;padding:1.5rem}
+    .tag-chip{display:inline-flex;align-items:center;gap:.4rem;background:rgba(59,130,246,.12);color:#3b82f6;padding:.25rem .65rem;border-radius:9999px;font-size:.75rem;font-weight:700}
+    .tag-chip button{background:none;border:none;color:inherit;cursor:pointer;font-size:.85rem;line-height:1;padding:0}
+    select,textarea,input{background:var(--bg-card)!important;border:1px solid var(--border)!important;color:var(--text-main)!important;padding:.6rem .85rem;border-radius:.625rem;outline:none;width:100%;font-family:inherit;box-sizing:border-box}
+    .timeline-item{border-left:2px solid var(--border);padding:.25rem 0 .25rem 1rem;margin-left:.4rem;position:relative}
+    .timeline-item::before{content:'';position:absolute;left:-5px;top:.6rem;width:8px;height:8px;border-radius:50%;background:var(--primary)}
+    .badge{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;border-radius:9999px;font-size:.7rem;font-weight:700}
+    .badge-pending{background:rgba(251,191,36,.12);color:#fbbf24}
+    .badge-approved{background:rgba(34,197,94,.12);color:#22c55e}
+    .badge-rejected{background:rgba(239,68,68,.12);color:#ef4444}
+    @media(max-width:1024px){.sidebar{width:80px;padding:1.5rem .75rem}.sidebar span,.logo span{display:none}.main-content{margin-left:80px}}
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo"><i data-lucide="car"></i><span>AutoGestão</span></div>
+    <nav class="nav-links">
+      <a href="clientes.html" class="nav-item active"><i data-lucide="users"></i><span>Clientes</span></a>
+      <a href="dashboard.html" class="nav-item"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
+      <a href="veiculos.html" class="nav-item"><i data-lucide="car-front"></i><span>Veículos</span></a>
+      <a href="agendamentos.html" class="nav-item"><i data-lucide="calendar-check"></i><span>Agendamentos</span></a>
+      <a href="agenda.html" class="nav-item"><i data-lucide="calendar-range"></i><span>Calendário</span></a>
+      <a href="servicos.html" class="nav-item"><i data-lucide="wrench"></i><span>Serviços</span></a>
+      <a href="funcionarios.html" class="nav-item"><i data-lucide="user-check"></i><span>Funcionários</span></a>
+      <a href="relatorios.html" class="nav-item"><i data-lucide="bar-chart-3"></i><span>Relatórios</span></a>
+      <a href="admins.html" class="nav-item nav-item-super hidden" id="nav-admins">
+        <i data-lucide="shield"></i><span>Administradores</span>
+      </a>
+    </nav>
+    <div class="user-footer">
+      <div class="flex items-center gap-3 overflow-hidden">
+        <div class="avatar" id="user-initial">U</div>
+        <span id="usuario-logado" class="text-sm font-bold truncate w-24">Usuário</span>
+      </div>
+      <button onclick="abrirModalLogout()" class="text-slate-500 hover:text-red-500 transition-colors">
+        <i data-lucide="log-out" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </aside>
+  <main class="main-content">
+    <header class="flex justify-between items-center mb-8">
+      <div>
+        <a href="clientes.html" class="text-xs text-slate-400 hover:text-white flex items-center gap-1 mb-2"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Voltar para Clientes</a>
+        <h1 class="text-3xl font-bold tracking-tight" id="cliente-nome">Carregando...</h1>
+        <p class="text-slate-400 text-sm" id="cliente-contato">—</p>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div class="card">
+        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Estágio no funil</label>
+        <select id="select-funil" class="mt-2">
+          <option value="novo">Novo</option>
+          <option value="ativo">Ativo</option>
+          <option value="recorrente">Recorrente</option>
+          <option value="inativo">Inativo</option>
+        </select>
+      </div>
+      <div class="card lg:col-span-2">
+        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Tags</label>
+        <div id="lista-tags" class="flex flex-wrap gap-2 mt-2 mb-2"></div>
+        <div class="flex gap-2">
+          <input id="input-tag" placeholder="Ex: VIP, fidelizado..." maxlength="30">
+          <button onclick="adicionarTag()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 rounded-xl font-bold text-sm">Adicionar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-6">
+      <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Notas internas</label>
+      <textarea id="textarea-notas" rows="3" maxlength="2000" class="mt-2" placeholder="Observações sobre este cliente (uso interno da equipe)..."></textarea>
+      <div class="flex justify-end mt-2">
+        <button onclick="salvarCRM()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-xl font-bold text-sm">Salvar alterações</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="card">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="car-front" class="text-emerald-500 w-5 h-5"></i> Veículos</h2>
+        <div id="lista-veiculos" class="space-y-2"></div>
+      </div>
+      <div class="card">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="history" class="text-emerald-500 w-5 h-5"></i> Histórico de atendimentos</h2>
+        <div id="lista-agendamentos" class="space-y-1"></div>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="modal-logout" class="modal-overlay hidden" style="position:fixed;inset:0;z-index:9000;background:rgba(2,6,23,.85);backdrop-filter:blur(6px);align-items:center;justify-content:center" onclick="if(event.target===this)fecharModalLogout()">
+  <div class="card" style="max-width:420px;text-align:center">
+    <p class="font-bold mb-2">Encerrar sessão?</p>
+    <p class="text-sm text-slate-400 mb-4">Deseja mesmo sair do sistema agora?</p>
+    <div class="flex gap-3">
+      <button onclick="fecharModalLogout()" class="flex-1 py-2 rounded-xl border border-slate-700 text-slate-300">Permanecer</button>
+      <button onclick="executarLogout()" class="flex-1 py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">Sair</button>
+    </div>
+  </div>
+</div>
+<script src="config.js"></script>
+<script src="toast.js"></script>
+<script src="auth.js"></script>
+<script src="cliente-detalhe.js"></script>
+<script>
+  lucide.createIcons();
+  function abrirModalLogout(){const m=document.getElementById('modal-logout');m.classList.remove('hidden');m.classList.add('flex')}
+  function fecharModalLogout(){const m=document.getElementById('modal-logout');m.classList.add('hidden');m.classList.remove('flex')}
+  function executarLogout(){fecharModalLogout();if(typeof logout==='function')logout();else{localStorage.clear();window.location.href='login.html'}}
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharModalLogout()});
+  window.onload=()=>{
+    try{
+      try{const _t=localStorage.getItem('token');if(_t){const _p=JSON.parse(atob(_t.split('.')[1]));if(_p.tipo==='superadmin')document.getElementById('nav-admins')?.classList.remove('hidden')}}catch(_e){}
+      if(typeof verificarLogin==='function')verificarLogin();
+      if(typeof mostrarUsuario==='function'){mostrarUsuario();setTimeout(()=>{const s=document.getElementById('usuario-logado');if(s&&s.innerText!=='Usuário')document.getElementById('user-initial').innerText=s.innerText.charAt(0).toUpperCase()},300)}
+      if(typeof carregarClienteDetalhe==='function')carregarClienteDetalhe();
+    }catch(e){console.error(e)}
+  };
+</script>
+</body>
+</html>

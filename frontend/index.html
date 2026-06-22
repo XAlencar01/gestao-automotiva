@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart System - Agendamentos</title>
+  <!-- Tailwind CSS para utilitários de layout -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>h1,h2,h3,.logo,.btn-primary,.stat-value,.modal-titulo{font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
+    :root {
+      --bg-deep: #061412;
+      --bg-surface: #0c211d;
+      --bg-card: #11302a;
+      --border: #1e4a40;
+      --primary: #16a34a;
+      --text-main: #f1f8f5;
+      --text-muted: #87a69c;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-deep);
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    /* Layout Principal */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Barra Lateral */
+    .sidebar {
+      width: 260px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      position: fixed;
+      height: 100vh;
+      z-index: 40;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 2.5rem;
+      padding-left: 0.5rem;
+    }
+
+    .nav-links {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    }
+
+    /* Conteúdo Principal */
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      padding: 2.5rem;
+    }
+
+    /* Componentes de Interface */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .title-group h1 {
+      font-size: 1.875rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--primary-ink);
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #15803d;
+      transform: translateY(-2px);
+    }
+
+    /* Tabela de Dados */
+    .data-card {
+      background: var(--bg-surface);
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      background: rgba(30, 41, 59, 0.5);
+      padding: 1rem 1.5rem;
+      text-align: left;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 700;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody td {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Caixa de Usuário */
+    .user-footer {
+      margin-top: auto;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .avatar-circle {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: white;
+    }
+
+    .logout-btn {
+      color: var(--text-muted);
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+
+    /* Estado Vazio */
+    .empty-state {
+      padding: 4rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    /* Responsividade */
+    @media (max-width: 1024px) {
+      .sidebar { width: 80px; padding: 1.5rem 0.75rem; }
+      .sidebar span, .logo span { display: none; }
+      .main-content { margin-left: 80px; }
+      .nav-item { justify-content: center; padding: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- BARRA LATERAL (SIDEBAR) -->
+  <aside class="sidebar">
+    <div class="logo">
+      <i data-lucide="car"></i>
+      <span>Smart System</span>
+    </div>
+
+    <nav class="nav-links">
+      <a href="dashboard.html" class="nav-item">
+        <i data-lucide="layout-dashboard"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="index.html" class="nav-item active">
+        <i data-lucide="calendar-check"></i>
+        <span>Agendamentos</span>
+      </a>
+      <a href="clientes.html" class="nav-item">
+        <i data-lucide="users"></i>
+        <span>Clientes</span>
+      </a>
+      <a href="veiculos.html" class="nav-item">
+        <i data-lucide="car-front"></i>
+        <span>Veículos</span>
+      </a>
+      <a href="servicos.html" class="nav-item">
+        <i data-lucide="wrench"></i>
+        <span>Serviços</span>
+      </a>
+      <a href="relatorios.html" class="nav-item">
+      <i data-lucide="bar-chart-3"></i>
+      <span>Relatórios</span>
+      </a>
+    </nav>
+
+    <!-- RODAPÉ DA SIDEBAR (USUÁRIO) -->
+    <div class="user-footer">
+      <div class="user-profile">
+        <div class="avatar-circle" id="user-avatar">?</div>
+        <div class="flex flex-col overflow-hidden">
+          <span id="usuario-logado" class="text-sm font-bold truncate w-24">Carregando...</span>
+          <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Admin</span>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="efetuarLogout()" title="Sair">
+        <i data-lucide="log-out" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="main-content">
+    
+    <header class="page-header">
+      <div class="title-group">
+        <h1>Agendamentos</h1>
+        <p class="text-slate-400 text-sm mt-1">Gerencie as ordens de serviço e horários da sua estética.</p>
+      </div>
+      
+      <button class="btn-primary" onclick="irPara('agendamentos.html#novo')">
+        <i data-lucide="plus" class="w-5 h-5"></i>
+        <span>Novo Agendamento</span>
+      </button>
+    </header>
+
+    <!-- CONTAINER DA TABELA -->
+    <div class="data-card">
+      <table id="tabela-agendamentos">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Veículo</th>
+            <th>Serviço</th>
+            <th>Data / Hora</th>
+            <th>Status</th>
+            <th class="text-right">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabela">
+          <!-- O JavaScript preencherá aqui -->
+          <tr id="loading-row">
+            <td colspan="6" class="empty-state">
+              <div class="flex flex-col items-center gap-3">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <p>Buscando dados na nuvem...</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+</div>
+
+<!-- SCRIPTS DE INFRAESTRUTURA -->
+<script src="auth.js"></script>
+<script src="agendamentos.js"></script>
+
+<!-- LÓGICA DE INICIALIZAÇÃO -->
+<script>
+  // Inicializa ícones Lucide
+  lucide.createIcons();
+
+  // Função para navegação entre páginas (Conversa entre as páginas)
+  function irPara(url) {
+    if (url) window.location.href = url;
+  }
+
+  // Wrapper para Logout
+  function efetuarLogout() {
+    if (confirm("Deseja realmente sair do sistema?")) {
+      if (typeof logout === "function") {
+        logout();
+      } else {
+        localStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+  }
+
+  // Inicialização de segurança e UI
+  window.addEventListener('DOMContentLoaded', () => {
+    try {
+      if (typeof verificarLogin === "function") verificarLogin();
+      if (typeof mostrarUsuario === "function") {
+        mostrarUsuario();
+        
+        // Customização do Avatar baseada no nome carregado
+        setTimeout(() => {
+          const userText = document.getElementById('usuario-logado').innerText;
+          const avatar = document.getElementById('user-avatar');
+          if (userText && userText !== "Carregando...") {
+            avatar.innerText = userText.charAt(0).toUpperCase();
+          }
+        }, 500);
+      }
+      if (typeof ocultarParaCliente === "function") ocultarParaCliente();
+    } catch (e) {
+      console.warn("Aguardando carregamento dos scripts externos...");
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente 
+.env
+.env.local
+.env.production
+
+# Cobertura de testes
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# Claude Code local config
+.claude/
+
+# Build
+dist/
+build/

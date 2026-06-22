@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart System - Criar Conta</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>h1,h2,h3,.logo,.btn-primary,.stat-value,.modal-titulo{font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
+    :root {
+      --bg-deep: #061412; --bg-surface: #0c211d; --bg-card: #11302a;
+      --border: #1e4a40; --primary: #16a34a;
+      --text-main: #f1f8f5; --text-muted: #87a69c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-deep); color: var(--text-main);
+      min-height: 100vh; overflow-x: hidden;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .bg-glow {
+      position: fixed; width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(22,163,74,.15) 0%, rgba(2,6,23,0) 70%);
+      border-radius: 50%; z-index: -1; filter: blur(60px);
+    }
+    .register-container {
+      width: 100%; max-width: 460px;
+      animation: fadeIn 0.5s ease-out; z-index: 10;
+    }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .register-box {
+      background: var(--bg-surface); border: 1px solid var(--border);
+      border-radius: 1.5rem; padding: 2rem;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,.5);
+    }
+    .input-group { margin-bottom: 1.25rem; }
+    .input-label {
+      display: block; font-size: .75rem; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: .05em; margin-bottom: .5rem;
+    }
+    .input-wrapper { position: relative; }
+    .input-icon {
+      position: absolute; left: 1.25rem; top: 50%;
+      transform: translateY(-50%); color: var(--text-muted);
+      pointer-events: none; z-index: 10;
+    }
+    input[type="text"], input[type="email"], input[type="password"] {
+      background: var(--bg-card) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--text-main) !important;
+      padding: .875rem 1rem .875rem 3.5rem !important;
+      border-radius: .75rem; outline: none;
+      width: 100%; transition: all .2s;
+    }
+    .input-with-eye { padding-right: 3.5rem !important; }
+    input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 2px rgba(22,163,74,.1); }
+    .toggle-password {
+      position: absolute; right: 1rem; top: 50%;
+      transform: translateY(-50%); color: var(--text-muted);
+      cursor: pointer; background: none; border: none; padding: 0;
+      display: flex; align-items: center; transition: color .2s;
+    }
+    .toggle-password:hover { color: var(--text-main); }
+    .rule-item { display: flex; align-items: center; gap: .375rem; transition: all .3s; }
+    .rule-valid { color: #22c55e !important; transform: translateX(4px); }
+    .checkbox-lgpd { accent-color: var(--primary); width: 1rem; height: 1rem; cursor: pointer; margin-top: .125rem; flex-shrink: 0; }
+    .btn-register {
+      background: var(--primary); color: white; width: 100%;
+      padding: .875rem; border-radius: .75rem; font-weight: 700;
+      font-size: 1rem; transition: all .2s;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      margin-top: 1.5rem; border: none; cursor: pointer; font-family: inherit;
+    }
+    .btn-register:hover { background: #15803d; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(22,163,74,.3); }
+    .btn-register:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .login-link { text-align: center; margin-top: 1.5rem; font-size: .875rem; color: var(--text-muted); }
+    .login-link a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .login-link a:hover { text-decoration: underline; }
+    .alerta { padding: .75rem; border-radius: .5rem; font-size: .875rem; text-align: left; margin-top: 1rem; display: none; flex-direction: column; gap: .5rem; }
+    .alerta.erro    { background: rgba(239,68,68,.1); color: #ef4444; border: 1px solid rgba(239,68,68,.2); }
+    .alerta.sucesso { background: rgba(34,197,94,.1);  color: #22c55e; border: 1px solid rgba(34,197,94,.2); text-align: center; }
+
+    /* Link de termos — parece link normal mas abre modal */
+    .link-termos {
+      color: #16a34a; cursor: pointer;
+      text-decoration: none; font-weight: 500;
+      background: none; border: none; padding: 0;
+      font-size: inherit; font-family: inherit;
+      transition: color .2s;
+    }
+    .link-termos:hover { text-decoration: underline; color: #ffb088; }
+
+    /* Modal de termos/LGPD */
+    .modal-doc-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(2,6,23,.92);
+      backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .modal-doc-overlay.aberto { display: flex; }
+    .modal-doc-box {
+      background: #0c211d; border: 1px solid #1e4a40;
+      border-radius: 1.25rem; width: 100%; max-width: 680px;
+      max-height: 85vh; display: flex; flex-direction: column;
+      box-shadow: 0 30px 70px rgba(0,0,0,.7);
+      animation: modalEntrar .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes modalEntrar {
+      from { opacity: 0; transform: scale(.94) translateY(16px); }
+      to   { opacity: 1; transform: scale(1)   translateY(0);    }
+    }
+    .modal-doc-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 1.5rem; border-bottom: 1px solid #1e4a40; flex-shrink: 0;
+    }
+    .modal-doc-titulo {
+      display: flex; align-items: center; gap: .75rem;
+      font-size: 1rem; font-weight: 800; color: #f1f8f5;
+    }
+    .modal-doc-titulo-icone {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: #15803d; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .btn-fechar-modal {
+      width: 32px; height: 32px; border-radius: 8px;
+      border: 1px solid #1e4a40; background: transparent;
+      color: #87a69c; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      transition: all .2s; flex-shrink: 0;
+    }
+    .btn-fechar-modal:hover { background: rgba(255,255,255,.06); color: #f1f8f5; }
+    .modal-doc-body {
+      overflow-y: auto; padding: 1.5rem;
+      flex: 1; scroll-behavior: smooth;
+    }
+    /* Scrollbar discreta */
+    .modal-doc-body::-webkit-scrollbar { width: 6px; }
+    .modal-doc-body::-webkit-scrollbar-track { background: transparent; }
+    .modal-doc-body::-webkit-scrollbar-thumb { background: #1e4a40; border-radius: 9999px; }
+    .modal-doc-body::-webkit-scrollbar-thumb:hover { background: #5a4b43; }
+
+    /* Conteúdo dentro do modal — mesmo estilo das páginas originais */
+    .doc-content .highlight {
+      background: rgba(22,163,74,.08); border: 1px solid rgba(22,163,74,.18);
+      color: #dbeafe; border-radius: 12px; padding: 12px 16px; margin-bottom: 20px;
+      font-size: .9rem; line-height: 1.65;
+    }
+    .doc-content h1 { font-size: 1.5rem; font-weight: 800; margin: 0 0 4px; }
+    .doc-content .subtitulo { color: #87a69c; font-size: .85rem; margin-bottom: 20px; }
+    .doc-content h2 { font-size: .95rem; font-weight: 700; color: #fff; margin: 20px 0 6px; }
+    .doc-content p, .doc-content li { color: #cbd5e1; line-height: 1.75; font-size: .9rem; margin: 0 0 6px; }
+    .doc-content ul { padding-left: 20px; margin: 6px 0 10px; }
+    .doc-content li { margin-bottom: 3px; }
+    .doc-content strong { color: #fff; }
+    .doc-content .footer-note {
+      margin-top: 24px; padding-top: 16px; border-top: 1px solid #1e4a40;
+      color: #87a69c; font-size: .85rem; line-height: 1.6;
+    }
+
+    .modal-doc-footer {
+      padding: 1rem 1.5rem; border-top: 1px solid #1e4a40;
+      display: flex; justify-content: flex-end; gap: .75rem; flex-shrink: 0;
+    }
+    .btn-entendido {
+      background: #16a34a; color: white;
+      border: none; border-radius: .75rem;
+      padding: .65rem 1.5rem; font-weight: 700;
+      font-size: .875rem; cursor: pointer;
+      font-family: inherit; transition: background .2s;
+    }
+    .btn-entendido:hover { background: #15803d; }
+
+    #btn-topo {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      width: 44px; height: 44px;
+      background: var(--primary); color: white;
+      border: none; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 9000;
+      box-shadow: 0 4px 12px rgba(22,163,74,.4);
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s, transform .3s;
+    }
+    #btn-topo.visivel { opacity: 1; pointer-events: auto; }
+    #btn-topo:hover { transform: translateY(-3px); }
+
+    @media (max-width: 480px) {
+      body { padding: 1rem .75rem; align-items: flex-start; }
+      .register-box { padding: 1.5rem 1.25rem; }
+      .modal-doc-box { max-height: 92vh; border-radius: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow" style="top:-100px;right:-100px;"></div>
+  <div class="bg-glow" style="bottom:-100px;left:-100px;opacity:.5;"></div>
+
+  <div class="register-container">
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center p-3 bg-emerald-600 rounded-2xl shadow-lg shadow-emerald-900/20 mb-4">
+        <i data-lucide="user-plus" class="w-8 h-8 text-white"></i>
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-white mb-1">Criar Conta</h1>
+      <p class="text-slate-400 text-sm">Registre-se para começar a gerir a sua estética.</p>
+    </div>
+
+    <div class="register-box">
+
+      <!-- NOME -->
+      <div class="input-group">
+        <label class="input-label" for="nome">Nome Completo</label>
+        <div class="input-wrapper">
+          <i data-lucide="user" class="w-5 h-5 input-icon"></i>
+          <input id="nome" type="text" placeholder="Como devemos chamá-lo?">
+        </div>
+      </div>
+
+      <!-- EMAIL -->
+      <div class="input-group">
+        <label class="input-label" for="email">E-mail</label>
+        <div class="input-wrapper">
+          <i data-lucide="mail" class="w-5 h-5 input-icon"></i>
+          <input id="email" type="email" placeholder="exemplo@email.com"
+                 oninput="this.value=this.value.toLowerCase()">
+        </div>
+      </div>
+
+      <!-- CONFIRMAR EMAIL -->
+      <div class="input-group">
+        <label class="input-label" for="confirmar_email">Confirme o E-mail</label>
+        <div class="input-wrapper">
+          <i data-lucide="mail-check" class="w-5 h-5 input-icon"></i>
+          <input id="confirmar_email" type="email" placeholder="Digite novamente o e-mail"
+                 oninput="this.value=this.value.toLowerCase()">
+        </div>
+      </div>
+
+      <!-- SENHA -->
+      <div class="input-group">
+        <label class="input-label" for="senha">Senha</label>
+        <div class="input-wrapper">
+          <i data-lucide="lock" class="w-5 h-5 input-icon"></i>
+          <input id="senha" type="password" placeholder="No mínimo 6 caracteres"
+                 class="input-with-eye" oninput="avaliarSenha(this.value)">
+          <button type="button" class="toggle-password"
+                  onclick="togglePassword('senha','icon-eye-1','icon-eye-off-1')">
+            <i data-lucide="eye"     id="icon-eye-1"     class="w-5 h-5 block"></i>
+            <i data-lucide="eye-off" id="icon-eye-off-1" class="w-5 h-5 hidden"></i>
+          </button>
+        </div>
+        <ul class="mt-3 space-y-1 text-[11px] font-medium text-slate-500">
+          <li id="rule-length"  class="rule-item"><i data-lucide="x" class="w-3 h-3 icon-invalid"></i><i data-lucide="check" class="w-3 h-3 icon-valid hidden"></i><span>Mínimo de 6 caracteres</span></li>
+          <li id="rule-upper"   class="rule-item"><i data-lucide="x" class="w-3 h-3 icon-invalid"></i><i data-lucide="check" class="w-3 h-3 icon-valid hidden"></i><span>Pelo menos 1 letra maiúscula</span></li>
+          <li id="rule-lower"   class="rule-item"><i data-lucide="x" class="w-3 h-3 icon-invalid"></i><i data-lucide="check" class="w-3 h-3 icon-valid hidden"></i><span>Pelo menos 1 letra minúscula</span></li>
+          <li id="rule-special" class="rule-item"><i data-lucide="x" class="w-3 h-3 icon-invalid"></i><i data-lucide="check" class="w-3 h-3 icon-valid hidden"></i><span>1 caractere especial (!@#$%)</span></li>
+        </ul>
+      </div>
+
+      <!-- CONFIRMAR SENHA -->
+      <div class="input-group">
+        <label class="input-label" for="confirmar_senha">Confirme a Senha</label>
+        <div class="input-wrapper">
+          <i data-lucide="shield-check" class="w-5 h-5 input-icon"></i>
+          <input id="confirmar_senha" type="password" placeholder="Repita a senha"
+                 class="input-with-eye">
+          <button type="button" class="toggle-password"
+                  onclick="togglePassword('confirmar_senha','icon-eye-2','icon-eye-off-2')">
+            <i data-lucide="eye"     id="icon-eye-2"     class="w-5 h-5 block"></i>
+            <i data-lucide="eye-off" id="icon-eye-off-2" class="w-5 h-5 hidden"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- LGPD — links viram botões que abrem modal -->
+      <div class="flex items-start gap-3 mt-6 mb-4">
+        <input type="checkbox" id="lgpd" class="checkbox-lgpd">
+        <label for="lgpd" class="text-xs text-slate-400 leading-tight cursor-pointer">
+          Li e concordo com os
+          <button type="button" class="link-termos" onclick="abrirModalTermos()">Termos de Uso</button>
+          e autorizo o tratamento dos meus dados conforme a
+          <button type="button" class="link-termos" onclick="abrirModalLGPD()">Política de Privacidade (LGPD)</button>.
+        </label>
+      </div>
+
+      <button class="btn-register" id="btn-cadastrar" onclick="executarCadastro()">
+        <span>Criar Minha Conta</span>
+        <i data-lucide="check" class="w-5 h-5"></i>
+      </button>
+
+      <div id="alerta-erro"    class="alerta erro"></div>
+      <div id="alerta-sucesso" class="alerta sucesso">
+        <strong>✅ Cadastro Realizado!</strong>
+        Um link de confirmação foi enviado para o seu e-mail. Verifique sua caixa de entrada para ativar a conta.
+      </div>
+
+      <div class="login-link">
+        Já possui uma conta? <a href="login.html">Faça login agora</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTÃO VOLTAR AO TOPO -->
+  <button id="btn-topo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">
+    <i data-lucide="arrow-up" class="w-5 h-5"></i>
+  </button>
+
+  <!--  MODAL — Termos de Uso -->
+  <div id="modal-termos" class="modal-doc-overlay" onclick="if(event.target===this) fecharModalTermos()">
+    <div class="modal-doc-box">
+      <div class="modal-doc-header">
+        <div class="modal-doc-titulo">
+          <div class="modal-doc-titulo-icone">
+            <i data-lucide="file-text" class="w-4 h-4 text-white"></i>
+          </div>
+          Termos de Uso
+        </div>
+        <button class="btn-fechar-modal" onclick="fecharModalTermos()">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="modal-doc-body">
+        <div class="doc-content">
+          <h1>Termos de Uso</h1>
+          <p class="subtitulo">Última atualização: 21/04/2026</p>
+
+          <div class="highlight">
+            Ao utilizar o Smart System, o usuário declara que leu, compreendeu e concorda com estes Termos de Uso e com a Política de Privacidade aplicável à plataforma.
+          </div>
+
+          <h2>1. Objeto</h2>
+          <p>Estes Termos de Uso regulam o acesso e a utilização da plataforma Smart System, destinada ao gerenciamento de cadastros, agendamentos, serviços, veículos, clientes e demais funcionalidades disponibilizadas pelo sistema.</p>
+
+          <h2>2. Aceitação dos termos</h2>
+          <p>O acesso à plataforma depende da aceitação integral destes Termos. Caso o usuário não concorde com qualquer disposição aqui prevista, deverá interromper o uso do sistema.</p>
+
+          <h2>3. Cadastro e responsabilidade da conta</h2>
+          <p>Para utilizar determinadas funcionalidades, o usuário precisará criar uma conta, fornecendo dados verdadeiros, completos e atualizados.</p>
+          <ul>
+            <li>Manter a confidencialidade do login e da senha;</li>
+            <li>Não compartilhar credenciais com terceiros sem autorização;</li>
+            <li>Comunicar imediatamente qualquer uso não autorizado da conta;</li>
+            <li>Garantir que as informações fornecidas no cadastro sejam corretas.</li>
+          </ul>
+
+          <h2>4. Regras de utilização</h2>
+          <p>O usuário compromete-se a utilizar a plataforma de forma lícita, ética e em conformidade com a legislação aplicável, sendo vedado:</p>
+          <ul>
+            <li>Inserir informações falsas, enganosas ou fraudulentas;</li>
+            <li>Tentar acessar áreas restritas sem autorização;</li>
+            <li>Praticar atos que prejudiquem a estabilidade, segurança ou funcionamento do sistema;</li>
+            <li>Utilizar a plataforma para fins ilícitos ou que violem direitos de terceiros.</li>
+          </ul>
+
+          <h2>5. Funcionalidades e disponibilidade</h2>
+          <p>O Smart System poderá atualizar, modificar, suspender ou descontinuar funcionalidades a qualquer momento, visando melhorias, manutenção, segurança ou adequação técnica.</p>
+
+          <h2>6. Propriedade intelectual</h2>
+          <p>O conteúdo, layout, identidade visual, código-fonte, funcionalidades e demais recursos da plataforma são protegidos pela legislação aplicável e não podem ser copiados ou reproduzidos sem autorização.</p>
+
+          <h2>7. Limitação de responsabilidade</h2>
+          <p>O Smart System envidará esforços razoáveis para manter a plataforma disponível e segura, porém não garante funcionamento ininterrupto ou ausência absoluta de falhas.</p>
+          <p>O usuário reconhece que o uso do sistema é realizado por sua conta e risco, dentro dos limites permitidos pela legislação aplicável.</p>
+
+          <h2>8. Privacidade e proteção de dados</h2>
+          <p>O tratamento de dados pessoais observará a Política de Privacidade e a legislação aplicável, especialmente a Lei Geral de Proteção de Dados Pessoais (LGPD).</p>
+
+          <h2>9. Suspensão ou encerramento de acesso</h2>
+          <p>O acesso do usuário poderá ser suspenso ou encerrado em caso de violação destes Termos, uso indevido da plataforma, prática de fraude ou qualquer conduta que represente risco ao sistema ou a terceiros.</p>
+
+          <h2>10. Alterações destes termos</h2>
+          <p>Estes Termos de Uso poderão ser atualizados periodicamente. Recomenda-se ao usuário a consulta regular desta página para ciência da versão vigente.</p>
+
+          <h2>11. Contato</h2>
+          <p>Para dúvidas, solicitações ou comunicações relacionadas a estes Termos, entre em contato pelo canal oficial da plataforma.</p>
+          <p><strong>E-mail de contato:</strong> contato@smartsystemauto.com.br</p>
+
+          <h2>12. Foro e legislação aplicável</h2>
+          <p>Estes Termos serão interpretados de acordo com a legislação brasileira. Fica eleito o foro da comarca competente do domicílio do controlador, salvo disposição legal em contrário.</p>
+
+          <div class="footer-note">
+            Este documento é um modelo base e deve ser ajustado conforme a operação real do sistema e as políticas internas da empresa.
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-doc-footer">
+        <button class="btn-entendido" onclick="fecharModalTermos()">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL — Política de Privacidade (LGPD) -->
+  <div id="modal-lgpd" class="modal-doc-overlay" onclick="if(event.target===this) fecharModalLGPD()">
+    <div class="modal-doc-box">
+      <div class="modal-doc-header">
+        <div class="modal-doc-titulo">
+          <div class="modal-doc-titulo-icone">
+            <i data-lucide="shield-check" class="w-4 h-4 text-white"></i>
+          </div>
+          Política de Privacidade (LGPD)
+        </div>
+        <button class="btn-fechar-modal" onclick="fecharModalLGPD()">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="modal-doc-body">
+        <div class="doc-content">
+          <h1>Política de Privacidade</h1>
+          <p class="subtitulo">Última atualização: 21/04/2026</p>
+
+          <div class="highlight">
+            Esta Política de Privacidade explica como o Smart System coleta, utiliza, armazena e protege os dados pessoais dos usuários, em conformidade com a Lei Geral de Proteção de Dados Pessoais (LGPD).
+          </div>
+
+          <h2>1. Quem somos</h2>
+          <p>O Smart System é uma plataforma destinada ao gerenciamento de informações operacionais, administrativas e de relacionamento com clientes, incluindo funcionalidades de cadastro, agendamento e gestão de serviços.</p>
+
+          <h2>2. Dados que podemos tratar</h2>
+          <p>Dependendo da utilização da plataforma, poderemos tratar dados como:</p>
+          <ul>
+            <li>Nome completo;</li>
+            <li>E-mail;</li>
+            <li>Telefone;</li>
+            <li>Data de nascimento;</li>
+            <li>Endereço (CEP, logradouro, cidade, estado);</li>
+            <li>Dados de acesso e autenticação;</li>
+            <li>Informações de veículos e agendamentos cadastrados no sistema;</li>
+            <li>Registros de utilização, data e hora de acesso e logs técnicos, quando aplicável.</li>
+          </ul>
+
+          <h2>3. Finalidades do tratamento</h2>
+          <p>Os dados pessoais podem ser utilizados para:</p>
+          <ul>
+            <li>Criar e gerenciar contas de usuário;</li>
+            <li>Permitir o acesso às funcionalidades da plataforma;</li>
+            <li>Realizar autenticação e segurança de acesso;</li>
+            <li>Executar agendamentos, cadastros e gestão operacional;</li>
+            <li>Prestar suporte técnico e atendimento;</li>
+            <li>Cumprir obrigações legais ou regulatórias;</li>
+            <li>Melhorar a experiência do usuário e a segurança da aplicação.</li>
+          </ul>
+
+          <h2>4. Bases legais</h2>
+          <p>O tratamento de dados pessoais poderá ocorrer com fundamento em bases legais previstas na LGPD, incluindo:</p>
+          <ul>
+            <li>Execução de contrato ou procedimentos preliminares;</li>
+            <li>Cumprimento de obrigação legal ou regulatória;</li>
+            <li>Legítimo interesse, quando aplicável;</li>
+            <li>Consentimento do titular, quando necessário.</li>
+          </ul>
+
+          <h2>5. Compartilhamento de dados</h2>
+          <p>Os dados pessoais poderão ser compartilhados apenas quando necessário para a operação da plataforma, cumprimento de obrigação legal, prestação de serviços por terceiros contratados ou mediante ordem de autoridade competente.</p>
+
+          <h2>6. Armazenamento e retenção</h2>
+          <p>Os dados serão armazenados pelo período necessário para cumprir as finalidades para as quais foram coletados, respeitando prazos legais, com eliminação ou anonimização quando cabível.</p>
+
+          <h2>7. Segurança da informação</h2>
+          <p>Adotamos medidas técnicas e administrativas razoáveis para proteger os dados pessoais contra acessos não autorizados, perda, destruição, alteração ou divulgação indevida.</p>
+
+          <h2>8. Direitos do titular</h2>
+          <p>Nos termos da LGPD, o titular dos dados pode solicitar, quando aplicável:</p>
+          <ul>
+            <li>Confirmação da existência de tratamento;</li>
+            <li>Acesso aos dados;</li>
+            <li>Correção de dados incompletos, inexatos ou desatualizados;</li>
+            <li>Anonimização, bloqueio ou eliminação de dados desnecessários;</li>
+            <li>Portabilidade, quando aplicável;</li>
+            <li>Revogação do consentimento, quando esta for a base legal;</li>
+            <li>Solicitação de eliminação de dados tratados com consentimento.</li>
+          </ul>
+
+          <h2>9. Como exercer os seus direitos</h2>
+          <p>O titular poderá exercer os seus direitos por meio do canal de contato disponibilizado pela plataforma.</p>
+          <p><strong>E-mail para privacidade:</strong> privacidade@smartsystemauto.com.br</p>
+
+          <h2>10. Cookies e tecnologias semelhantes</h2>
+          <p>A plataforma poderá utilizar cookies para autenticação, segurança, desempenho e melhoria da experiência do usuário.</p>
+
+          <h2>11. Alterações desta política</h2>
+          <p>Esta Política de Privacidade poderá ser atualizada periodicamente. A versão vigente será sempre disponibilizada nesta página.</p>
+
+          <h2>12. Contato</h2>
+          <p>Para questões relacionadas à proteção de dados, privacidade ou exercício de direitos, entre em contato pelo canal informado nesta política.</p>
+
+          <div class="footer-note">
+            Esta política é um modelo base. Antes da publicação em ambiente real, ajuste o conteúdo com os dados reais do responsável pelo tratamento e políticas internas de segurança.
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-doc-footer">
+        <button class="btn-entendido" onclick="fecharModalLGPD()">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="register.js"></script>
+
+  <script>
+    lucide.createIcons();
+
+    // Botão voltar ao topo
+    window.addEventListener('scroll', () => {
+      document.getElementById('btn-topo').classList.toggle('visivel', window.scrollY > 300);
+    });
+
+    // Toggle senha 
+    function togglePassword(inputId, eyeId, eyeOffId) {
+      const input  = document.getElementById(inputId);
+      const eye    = document.getElementById(eyeId);
+      const eyeOff = document.getElementById(eyeOffId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        eye.classList.add('hidden'); eyeOff.classList.remove('hidden');
+      } else {
+        input.type = 'password';
+        eye.classList.remove('hidden'); eyeOff.classList.add('hidden');
+      }
+    }
+
+    // Validação da senha em tempo real 
+    function avaliarSenha(senha) {
+      const regras = [
+        { id: 'rule-length',  valid: senha.length >= 6 },
+        { id: 'rule-upper',   valid: /[A-Z]/.test(senha) },
+        { id: 'rule-lower',   valid: /[a-z]/.test(senha) },
+        { id: 'rule-special', valid: /[!@#$%^&*(),.?":{}|<>]/.test(senha) }
+      ];
+      regras.forEach(({ id, valid }) => {
+        const item = document.getElementById(id);
+        item.querySelector('.icon-invalid').classList.toggle('hidden', valid);
+        item.querySelector('.icon-valid').classList.toggle('hidden', !valid);
+        item.classList.toggle('rule-valid', valid);
+      });
+    }
+
+    function senhaTotalmenteValida(senha) {
+      return senha.length >= 6 && /[A-Z]/.test(senha) &&
+             /[a-z]/.test(senha) && /[!@#$%^&*(),.?":{}|<>]/.test(senha);
+    }
+
+    // Modais de Termos e LGPD 
+    function abrirModalTermos() {
+      const m = document.getElementById('modal-termos');
+      m.classList.add('aberto');
+      // Volta o scroll do conteúdo pro topo toda vez que abre
+      m.querySelector('.modal-doc-body').scrollTop = 0;
+      document.body.style.overflow = 'hidden';
+    }
+    function fecharModalTermos() {
+      document.getElementById('modal-termos').classList.remove('aberto');
+      document.body.style.overflow = '';
+    }
+
+    function abrirModalLGPD() {
+      const m = document.getElementById('modal-lgpd');
+      m.classList.add('aberto');
+      m.querySelector('.modal-doc-body').scrollTop = 0;
+      document.body.style.overflow = 'hidden';
+    }
+    function fecharModalLGPD() {
+      document.getElementById('modal-lgpd').classList.remove('aberto');
+      document.body.style.overflow = '';
+    }
+
+    // Executar cadastro 
+    async function executarCadastro() {
+      const erroDiv    = document.getElementById('alerta-erro');
+      const sucessoDiv = document.getElementById('alerta-sucesso');
+      const btn        = document.getElementById('btn-cadastrar');
+
+      erroDiv.style.display    = 'none';
+      sucessoDiv.style.display = 'none';
+      erroDiv.innerHTML        = '';
+
+      const nome           = document.getElementById('nome').value.trim();
+      const email          = document.getElementById('email').value.trim();
+      const confirmarEmail = document.getElementById('confirmar_email').value.trim();
+      const senha          = document.getElementById('senha').value;
+      const confirmarSenha = document.getElementById('confirmar_senha').value;
+      const lgpdCheck      = document.getElementById('lgpd').checked;
+
+      const erros = [];
+
+      if (!nome || !email || !confirmarEmail || !senha || !confirmarSenha)
+        erros.push('Por favor, preencha todos os campos.');
+      if (email && !email.includes('@'))
+        erros.push('Insira um e-mail válido.');
+      if (email && confirmarEmail && email !== confirmarEmail)
+        erros.push('Os e-mails não coincidem.');
+      if (!lgpdCheck)
+        erros.push('Você precisa aceitar os Termos de Uso e a Política de Privacidade.');
+      if (senha && confirmarSenha && senha !== confirmarSenha)
+        erros.push('As senhas não coincidem.');
+      if (senha && !senhaTotalmenteValida(senha))
+        erros.push('A senha não cumpre todos os requisitos.');
+
+      if (erros.length > 0) {
+        erroDiv.innerHTML =
+          "<strong>Atenção:</strong><ul style='margin-left:1rem;list-style-type:disc;margin-top:.5rem'>" +
+          erros.map(e => `<li>${e}</li>`).join('') + '</ul>';
+        erroDiv.style.display = 'flex';
+        return;
+      }
+
+      btn.disabled  = true;
+      btn.innerHTML = '<span>Criando conta...</span>';
+
+      try {
+        await cadastrar();
+        sucessoDiv.style.display = 'flex';
+        ['nome','email','confirmar_email','senha','confirmar_senha'].forEach(id => {
+          document.getElementById(id).value = '';
+        });
+        document.getElementById('lgpd').checked = false;
+        avaliarSenha('');
+      } catch (err) {
+        // erro já tratado dentro de cadastrar()
+      } finally {
+        btn.disabled  = false;
+        btn.innerHTML = '<span>Criar Minha Conta</span><i data-lucide="check" class="w-5 h-5"></i>';
+        lucide.createIcons();
+      }
+    }
+
+    // Fecha modais com Escape
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        fecharModalTermos();
+        fecharModalLGPD();
+      }
+    });
+
+    document.addEventListener('keypress', e => {
+      if (e.key === 'Enter') executarCadastro();
+    });
+  </script>
+</body>
+</html>

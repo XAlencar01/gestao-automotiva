@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmar Email — Smart System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>h1,h2,h3,.logo,.btn-primary,.stat-value,.modal-titulo{font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
+    :root {
+      --bg-deep: #061412; --bg-surface: #0c211d;
+      --border: #1e4a40; --primary: #16a34a;
+      --success: #22c55e; --danger: #ef4444;
+      --text-main: #f1f8f5; --text-muted: #87a69c;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-deep); color: var(--text-main);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 20px; box-sizing: border-box;
+    }
+    .box {
+      width: 100%; max-width: 460px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 24px; padding: 40px 32px;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.45);
+      animation: fadeIn .4s ease-out;
+    }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .icon-wrap {
+      width: 80px; height: 80px; border-radius: 20px;
+      margin: 0 auto 24px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .icon-loading  { background: rgba(22,163,74,.12); color: #ffb088; }
+    .icon-sucesso  { background: rgba(34,197,94,.12);  color: #22c55e; }
+    .icon-erro     { background: rgba(239,68,68,.12);  color: #ef4444; }
+    h1 { margin: 0 0 8px; font-size: 1.75rem; font-weight: 800; }
+    p  { color: var(--text-muted); line-height: 1.6; margin-bottom: 28px; font-size: .95rem; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--primary); color: white;
+      text-decoration: none; padding: 12px 24px;
+      border-radius: 12px; font-weight: 700; font-size: .95rem;
+      border: none; cursor: pointer; transition: all .2s;
+    }
+    .btn:hover { background: #15803d; transform: translateY(-1px); }
+    .btn-outline {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      background: transparent; color: var(--primary);
+      border: 1px solid var(--primary);
+      text-decoration: none; padding: 11px 24px;
+      border-radius: 12px; font-weight: 700; font-size: .95rem;
+      cursor: pointer; transition: all .2s; margin-top: 12px;
+    }
+    .btn-outline:hover { background: rgba(22,163,74,.08); }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(96,165,250,.2);
+      border-top-color: #ffb088;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="icon-wrap icon-loading" id="icon-wrap">
+      <div class="spinner" id="spinner"></div>
+    </div>
+    <h1 id="titulo">Confirmando email</h1>
+    <p id="mensagem">Aguarde um instante enquanto validamos seu link...</p>
+    <div id="acoes"></div>
+  </div>
+
+  <!-- config.js garante que usa a URL correta em qualquer ambiente -->
+  <script src="config.js"></script>
+  <script>
+    lucide.createIcons();
+
+    const params  = new URLSearchParams(window.location.search);
+    const token   = params.get('token');
+
+    const iconWrap = document.getElementById('icon-wrap');
+    const spinner  = document.getElementById('spinner');
+    const titulo   = document.getElementById('titulo');
+    const mensagem = document.getElementById('mensagem');
+    const acoes    = document.getElementById('acoes');
+
+    function mostrarSucesso(msg) {
+      iconWrap.className = 'icon-wrap icon-sucesso';
+      iconWrap.innerHTML = '<i data-lucide="mail-check" style="width:40px;height:40px"></i>';
+      titulo.textContent = 'Email confirmado!';
+      mensagem.textContent = msg;
+      acoes.innerHTML = `
+        <a href="login.html" class="btn">
+          <i data-lucide="log-in" style="width:18px;height:18px"></i>
+          Ir para o Login
+        </a>`;
+      lucide.createIcons();
+    }
+
+    function mostrarErro(msg) {
+      iconWrap.className = 'icon-wrap icon-erro';
+      iconWrap.innerHTML = '<i data-lucide="x-circle" style="width:40px;height:40px"></i>';
+      titulo.textContent = 'Link inválido';
+      mensagem.textContent = msg;
+      acoes.innerHTML = `
+        <a href="login.html" class="btn">Voltar ao Login</a>
+        <br>
+        <button onclick="reenviar()" class="btn-outline">
+          <i data-lucide="mail" style="width:16px;height:16px"></i>
+          Receber novo link
+        </button>`;
+      lucide.createIcons();
+    }
+
+    async function reenviar() {
+      const email = prompt('Digite o seu email para receber um novo link:');
+      if (!email) return;
+
+      try {
+        const res  = await fetch(`${API}/auth/reenviar-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        alert(data.mensagem || data.erro);
+      } catch {
+        alert('Erro ao reenviar. Tente novamente.');
+      }
+    }
+
+    async function confirmarEmail() {
+      if (!token) {
+        mostrarErro('Token não encontrado na URL. Verifique o link no seu email.');
+        return;
+      }
+
+      try {
+        const res  = await fetch(`${API}/auth/confirmar-email?token=${token}`);
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.erro || 'Erro ao confirmar email.');
+
+        mostrarSucesso(data.mensagem);
+      } catch (err) {
+        mostrarErro(err.message);
+      }
+    }
+
+    confirmarEmail();
+  </script>
+</body>
+</html>

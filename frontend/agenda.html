@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoGestão CRM - Agenda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>h1,h2,h3,.logo,.btn-primary,.stat-value,.modal-titulo{font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
+    :root{--bg-deep:#061412;--bg-surface:#0c211d;--bg-card:#11302a;--border:#1e4a40;--primary:#16a34a;--primary-ink:#04140d;--accent:#3b82f6;--text-main:#f1f8f5;--text-muted:#87a69c}
+    body{margin:0;font-family:'Inter',system-ui,sans-serif;background:var(--bg-deep);color:var(--text-main);overflow-x:hidden}
+    .app-container{display:flex;min-height:100vh}
+    .sidebar{width:260px;background:var(--bg-surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem;position:fixed;height:100vh;z-index:40}
+    .logo{display:flex;align-items:center;gap:.75rem;font-size:1.25rem;font-weight:800;color:#fff;margin-bottom:2.5rem}
+    .nav-links{flex:1;display:flex;flex-direction:column;gap:.5rem}
+    .nav-item{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-radius:.5rem;color:var(--text-muted);text-decoration:none;font-weight:500;transition:all .2s}
+    .nav-item:hover,.nav-item.active{background:var(--primary);color:white}
+    .nav-item-super{border:1px solid rgba(251,191,36,.2);background:rgba(251,191,36,.05);color:#fbbf24!important}
+    .nav-item-super:hover,.nav-item-super.active{background:rgba(251,191,36,.15)!important;border-color:rgba(251,191,36,.4);color:#fbbf24!important}
+    .main-content{flex:1;margin-left:260px;padding:2.5rem}
+    .form-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:.625rem;padding:1.5rem;margin-bottom:2rem;display:none;animation:slideDown .15s ease-out}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    .data-card{background:var(--bg-surface);border-radius:.625rem;border:1px solid var(--border);overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    thead th{background:var(--bg-card);padding:.875rem 1.5rem;text-align:left;font-size:.75rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;border-bottom:1px solid var(--border)}
+    tbody td{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);font-size:.875rem}
+    tbody tr:last-child td{border-bottom:none}
+    tbody tr:hover{background:rgba(255,255,255,.05)}
+    .user-footer{margin-top:auto;padding-top:1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .avatar{width:32px;height:32px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.8rem}
+    .modal-overlay{position:fixed;inset:0;z-index:9000;background:rgba(2,6,23,.85);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+    .modal-box{background:#0c211d;border:1px solid #1e4a40;border-radius:.75rem;padding:2rem;width:100%;max-width:420px;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:mE .15s ease-out}
+    @keyframes mE{from{opacity:0;transform:scale(.92) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .modal-icone{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem}
+    .modal-icone-perigo{background:rgba(239,68,68,.12);color:#ef4444}
+    .modal-icone-aviso{background:rgba(251,191,36,.12);color:#fbbf24}
+    .modal-titulo{font-size:1.125rem;font-weight:800;color:#f1f8f5;text-align:center;margin-bottom:.5rem}
+    .modal-desc{font-size:.875rem;color:#87a69c;text-align:center;line-height:1.6;margin-bottom:1.75rem}
+    .modal-desc strong{color:#f1f8f5}
+    .modal-acoes{display:flex;gap:.75rem}
+    .btn-mc{flex:1;padding:.7rem 1rem;border-radius:.75rem;border:1px solid #1e4a40;background:transparent;color:#87a69c;font-weight:700;font-size:.875rem;cursor:pointer;transition:all .2s;font-family:inherit}
+    .btn-mc:hover{background:rgba(255,255,255,.05);color:#f1f8f5}
+    .btn-ms{flex:1;padding:.7rem 1rem;border-radius:.75rem;background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.25);font-weight:700;font-size:.875rem;cursor:pointer;transition:all .2s;font-family:inherit}
+    .btn-ms:hover{background:rgba(251,191,36,.22)}
+    .btn-modal-cancelar{flex:1;padding:.7rem 1rem;border-radius:.75rem;border:1px solid #1e4a40;background:transparent;color:#87a69c;font-weight:700;font-size:.875rem;cursor:pointer;transition:all .2s;font-family:inherit}
+    .btn-modal-cancelar:hover{background:rgba(255,255,255,.05);color:#f1f8f5}
+    .btn-modal-perigo{flex:1;padding:.7rem 1rem;border-radius:.75rem;border:none;background:#dc2626;color:white;font-weight:700;font-size:.875rem;cursor:pointer;transition:all .2s;font-family:inherit}
+    .btn-modal-perigo:hover{background:#b91c1c}
+    .btn-modal-sair,.btn-modal-aviso{flex:1;padding:.7rem 1rem;border-radius:.75rem;background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.25);font-weight:700;font-size:.875rem;cursor:pointer;transition:all .2s;font-family:inherit}
+    .btn-modal-sair:hover,.btn-modal-aviso:hover{background:rgba(251,191,36,.22)}
+    input,select{background:var(--bg-card)!important;border:1px solid var(--border)!important;color:var(--text-main)!important;padding:.75rem 1rem;border-radius:.75rem;outline:none;width:100%;transition:border-color .2s;box-sizing:border-box}
+    input:focus,select:focus{border-color:var(--primary)!important}
+    .input-label{font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
+    .badge-ativo{background:rgba(34,197,94,.12);color:#22c55e;padding:.2rem .65rem;border-radius:9999px;font-size:.72rem;font-weight:700}
+    .badge-inativo{background:rgba(239,68,68,.12);color:#ef4444;padding:.2rem .65rem;border-radius:9999px;font-size:.72rem;font-weight:700}
+    @media(max-width:1024px){.sidebar{width:80px;padding:1.5rem .75rem}.sidebar span,.logo span{display:none}.main-content{margin-left:80px}}
+    .card{background:var(--bg-surface);border:1px solid var(--border);border-radius:1rem;padding:1.5rem}
+    #card-status-hoje{transition:border-color .3s,background .3s}
+    #card-status-hoje.fechado{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.04)}
+    .status-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem 1rem;border-radius:9999px;font-size:.8rem;font-weight:700;margin-bottom:.75rem}
+    .status-badge.aberto{background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.2)}
+    .status-badge.fechado{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+    #status-detalhe{display:flex;flex-wrap:wrap;gap:1rem;font-size:.8rem;color:var(--text-muted)}
+    .btn-toggle{padding:.55rem 1.2rem;border-radius:.75rem;font-size:.8rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);transition:all .2s;font-family:inherit}
+    .btn-toggle:hover{background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.3)}
+    .toggle-switch{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0}
+    .toggle-switch input{opacity:0;width:0;height:0}
+    .toggle-slider{position:absolute;cursor:pointer;inset:0;background:#1e4a40;border-radius:24px;transition:.3s}
+    .toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:white;border-radius:50%;transition:.3s}
+    input:checked+.toggle-slider{background:#16a34a}
+    input:checked+.toggle-slider:before{transform:translateX(20px)}
+    #tabela-funcionamento{display:flex;flex-direction:column;gap:.75rem}
+    .horario-row{display:flex;align-items:center;gap:1rem;padding:1rem 1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:.875rem;transition:border-color .2s;flex-wrap:wrap}
+    .horario-row.inativo{opacity:.5}
+    .dia-label{min-width:80px}
+    .dia-nome{font-weight:700;font-size:.875rem;display:block}
+    .dia-curto{display:none;font-weight:700;font-size:.875rem}
+    .horario-inputs{display:flex;align-items:center;gap:.75rem;flex:1;flex-wrap:wrap}
+    .horario-inputs.disabled{pointer-events:none;opacity:.4}
+    .input-time-group{display:flex;flex-direction:column;gap:.2rem}
+    .input-time-group label{font-size:.65rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
+    .input-time{background:var(--bg-surface);border:1px solid var(--border);color:var(--text-main);padding:.4rem .65rem;border-radius:.5rem;font-size:.8rem;outline:none;font-family:inherit;width:auto}
+    .input-time:focus{border-color:var(--primary)}
+    .separador{color:var(--text-muted);font-size:1rem;margin-top:1rem}
+    .btn-salvar-dia{margin-left:auto;padding:.45rem 1rem;background:var(--primary);color:white;border:none;border-radius:.5rem;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
+    .btn-salvar-dia:hover{background:#15803d}
+    .add-dia-form{display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:1.25rem}
+    .add-dia-form .input-group{display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:140px}
+    .add-dia-form label{font-size:.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
+    .add-dia-form input{background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);padding:.6rem .85rem;border-radius:.65rem;font-size:.85rem;outline:none;font-family:inherit;width:100%}
+    .btn-add-dia{padding:.6rem 1.25rem;background:var(--primary);color:white;border:none;border-radius:.65rem;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+    .btn-add-dia:hover{background:#15803d}
+    .lista-dias{display:flex;flex-direction:column;gap:.5rem}
+    .dia-fechado-item{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:.75rem;gap:.5rem;flex-wrap:wrap}
+    .data-tag{font-size:.82rem;font-weight:700;color:#fca5a5}
+    .motivo-tag{font-size:.75rem;color:var(--text-muted);margin-left:.5rem;background:var(--bg-card);padding:.15rem .5rem;border-radius:.35rem;border:1px solid var(--border)}
+    .btn-remover-dia{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2);border-radius:.5rem;padding:.35rem .5rem;cursor:pointer;display:flex;align-items:center}
+    .btn-remover-dia:hover{background:rgba(239,68,68,.25)}
+    .vazio{color:var(--text-muted);font-size:.85rem;font-style:italic;text-align:center;padding:1.5rem 0}
+    .modal-input{width:100%;background:#11302a;border:1px solid #1e4a40;color:#f1f8f5;padding:.65rem 1rem;border-radius:.75rem;outline:none;font-family:inherit;font-size:.875rem;margin-bottom:1.25rem;box-sizing:border-box}
+    .modal-input:focus{border-color:#16a34a}
+    .btn-ms-danger{flex:1;padding:.7rem;border-radius:.75rem;background:#dc2626;color:white;border:none;font-weight:700;font-size:.875rem;cursor:pointer;font-family:inherit}
+    .btn-ms-danger:hover{background:#b91c1c}
+    @media(max-width:640px){.dia-nome{display:none}.dia-curto{display:block}.btn-salvar-dia{width:100%}}
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo"><i data-lucide="car"></i><span>AutoGestão</span></div>
+    <nav class="nav-links">
+      <a href="clientes.html" class="nav-item"><i data-lucide="users"></i><span>Clientes</span></a>
+      <a href="dashboard.html" class="nav-item"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
+      <a href="veiculos.html" class="nav-item"><i data-lucide="car-front"></i><span>Veículos</span></a>
+      <a href="agendamentos.html" class="nav-item"><i data-lucide="calendar-check"></i><span>Agendamentos</span></a>
+      <a href="agenda.html" class="nav-item active"><i data-lucide="calendar-range"></i><span>Calendário</span></a>
+      <a href="servicos.html" class="nav-item"><i data-lucide="wrench"></i><span>Serviços</span></a>
+      <a href="funcionarios.html" class="nav-item"><i data-lucide="user-check"></i><span>Funcionários</span></a>
+      <a href="relatorios.html" class="nav-item"><i data-lucide="bar-chart-3"></i><span>Relatórios</span></a>
+      <a href="admins.html" class="nav-item nav-item-super hidden" id="nav-admins">
+        <i data-lucide="shield"></i><span>Administradores</span>
+      </a>
+    </nav>
+    <div class="user-footer">
+      <div class="flex items-center gap-3 overflow-hidden">
+        <div class="avatar" id="user-initial">U</div>
+        <span id="usuario-logado" class="text-sm font-bold truncate w-24">Usuário</span>
+      </div>
+      <button onclick="abrirModalLogout()" class="text-slate-500 hover:text-red-500 transition-colors">
+        <i data-lucide="log-out" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="flex justify-between items-center mb-8 flex-wrap gap-3">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">Agenda</h1>
+        <p class="text-slate-400 text-sm">Gerencie o funcionamento e disponibilidade da loja.</p>
+      </div>
+    </header>
+    <div class="grid grid-cols-1 gap-6">
+
+      <!-- Status de Hoje -->
+      <div class="card" id="card-status-hoje">
+        <div class="flex items-start justify-between flex-wrap gap-3">
+          <div>
+            <h2 class="text-base font-bold mb-2 flex items-center gap-2">
+              <i data-lucide="store" class="text-emerald-500 w-4 h-4"></i> Status de Hoje
+            </h2>
+            <div id="status-badge" class="status-badge aberto">● Carregando...</div>
+            <div id="status-detalhe"></div>
+          </div>
+          <button id="btn-toggle-hoje" class="btn-toggle">🔒 Fechar hoje</button>
+        </div>
+      </div>
+
+      <!-- Horários de Funcionamento -->
+      <div class="card">
+        <h2 class="text-base font-bold mb-5 flex items-center gap-2">
+          <i data-lucide="clock" class="text-emerald-500 w-4 h-4"></i>
+          Horários de Funcionamento
+          <span class="text-xs font-normal text-slate-500 ml-1">— configure por dia da semana</span>
+        </h2>
+        <div id="tabela-funcionamento">
+          <div class="text-slate-500 text-sm text-center py-6">Carregando...</div>
+        </div>
+      </div>
+
+      <!-- Dias Fechados -->
+      <div class="card">
+        <h2 class="text-base font-bold mb-5 flex items-center gap-2">
+          <i data-lucide="calendar-x" class="text-red-400 w-4 h-4"></i>
+          Dias Fechados
+          <span class="text-xs font-normal text-slate-500 ml-1">— feriados e exceções</span>
+        </h2>
+        <div class="add-dia-form">
+          <div class="input-group">
+            <label>Data</label>
+            <input type="date" id="input-data-fechar">
+          </div>
+          <div class="input-group" style="flex:2">
+            <label>Motivo (opcional)</label>
+            <input type="text" id="input-motivo-especifico" placeholder="Ex: Feriado nacional, Evento...">
+          </div>
+          <button onclick="adicionarDiaFechado()" class="btn-add-dia">+ Adicionar</button>
+        </div>
+        <div id="lista-dias-fechados" class="lista-dias">
+          <div class="text-slate-500 text-sm text-center py-4">Carregando...</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Modal: Fechar Hoje -->
+<div id="modal-fechar-hoje" class="modal-overlay hidden" onclick="if(event.target===this)fecharModalFecharHoje()">
+  <div class="modal-box">
+    <div class="modal-icone modal-icone-perigo"><i data-lucide="store" class="w-6 h-6"></i></div>
+    <p class="modal-titulo">Fechar loja hoje?</p>
+    <p class="modal-desc">Novos agendamentos para hoje serão bloqueados.</p>
+    <input id="input-motivo-fechar" class="modal-input" type="text" placeholder="Motivo (opcional)">
+    <div class="modal-acoes">
+      <button class="btn-modal-cancelar" onclick="fecharModalFecharHoje()">Cancelar</button>
+      <button class="btn-ms-danger" onclick="confirmarFecharHoje()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Logout -->
+<div id="modal-logout" class="modal-overlay hidden" onclick="if(event.target===this)fecharModalLogout()">
+  <div class="modal-box">
+    <div class="modal-icone modal-icone-aviso"><i data-lucide="log-out" class="w-6 h-6"></i></div>
+    <p class="modal-titulo">Encerrar sessão?</p>
+    <p class="modal-desc">Deseja mesmo sair do sistema agora?</p>
+    <div class="modal-acoes">
+      <button class="btn-modal-cancelar" onclick="fecharModalLogout()">Permanecer</button>
+      <button class="btn-modal-sair" onclick="executarLogout()">Sair</button>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="toast.js"></script>
+<script src="auth.js"></script>
+<script src="agenda.js"></script>
+<script>
+  lucide.createIcons();
+
+  function abrirModalLogout() {
+    const m = document.getElementById('modal-logout');
+    m.classList.remove('hidden'); m.classList.add('flex');
+  }
+  function fecharModalLogout() {
+    const m = document.getElementById('modal-logout');
+    m.classList.add('hidden'); m.classList.remove('flex');
+  }
+  function executarLogout() {
+    fecharModalLogout();
+    if (typeof logout === 'function') logout();
+    else { localStorage.clear(); window.location.href = 'login.html'; }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      fecharModalLogout();
+      if (typeof fecharModalFecharHoje === 'function') fecharModalFecharHoje();
+    }
+  });
+
+  // ── ÚNICO window.onload ──────────────────────────────
+  window.onload = () => {
+    try {
+      // Exibe menu de Administradores se for superadmin
+      try {
+        const _t = localStorage.getItem('token');
+        if (_t) {
+          const _p = JSON.parse(atob(_t.split('.')[1]));
+          if (_p.tipo === 'superadmin') document.getElementById('nav-admins')?.classList.remove('hidden');
+        }
+      } catch(_e) {}
+
+      if (typeof verificarLogin  === 'function') verificarLogin();
+      if (typeof mostrarUsuario  === 'function') {
+        mostrarUsuario();
+        setTimeout(() => {
+          const s = document.getElementById('usuario-logado');
+          if (s && s.innerText !== 'Usuário')
+            document.getElementById('user-initial').innerText = s.innerText.charAt(0).toUpperCase();
+        }, 300);
+      }
+    } catch(e) { console.error(e); }
+
+    // Carrega os dados da página
+    carregarStatusHoje();
+    carregarFuncionamento();
+    carregarDiasFechados();
+  };
+</script>
+</body>
+</html>
