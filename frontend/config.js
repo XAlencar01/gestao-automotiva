@@ -19,3 +19,13 @@ window.maskTelefone = function (input) {
   }
   input.value = v;
 };
+
+// Formata um telefone já salvo para exibição: (00) 0000-0000 ou (00) 00000-0000.
+// Usada em listas/cards (a máscara acima é só para inputs em digitação).
+window.formatarTelefone = function (telefone) {
+  if (!telefone) return '—';
+  const v = String(telefone).replace(/\D/g, '');
+  if (v.length === 11) return v.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+  if (v.length === 10) return v.replace(/^(\d{2})(\d{4})(\d{4})$/, '($1) $2-$3');
+  return telefone;
+};

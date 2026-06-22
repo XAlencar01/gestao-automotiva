@@ -631,7 +631,7 @@ async function carregarDadosConta() {
     setEl('conta-email',    conta.email || emailToken);
     setEl('conta-nome-row', nome);
     setEl('conta-email-row',conta.email || emailToken);
-    setEl('conta-telefone', conta.telefone || '—');
+    setEl('conta-telefone', formatarTelefone(conta.telefone));
     setEl('conta-nascimento', conta.data_nascimento
       ? new Date(conta.data_nascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
       : '—');

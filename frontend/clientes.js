@@ -74,7 +74,7 @@ function criarLinhaCliente(c) {
 
   const tdTelefone = document.createElement('td');
   tdTelefone.className = 'text-slate-400';
-  tdTelefone.textContent = c.telefone ?? '—';
+  tdTelefone.textContent = formatarTelefone(c.telefone);
 
   const tdFunil = document.createElement('td');
   const funil = FUNIL_LABEL[c.status_funil] ?? FUNIL_LABEL.novo;
@@ -295,7 +295,7 @@ function renderizarColunaKanban(status, clientes) {
 
     const contato = document.createElement('p');
     contato.className = 'kanban-card-contato';
-    contato.textContent = [c.email, c.telefone].filter(Boolean).join(' · ') || '—';
+    contato.textContent = [c.email, c.telefone ? formatarTelefone(c.telefone) : null].filter(Boolean).join(' · ') || '—';
 
     card.append(nome, contato);
 

@@ -28,7 +28,7 @@ async function carregarClienteDetalhe() {
 
     document.getElementById('cliente-nome').textContent = cliente.nome ?? 'Cliente';
     document.getElementById('cliente-contato').textContent =
-      [cliente.email, cliente.telefone].filter(Boolean).join(' · ') || '—';
+      [cliente.email, cliente.telefone ? formatarTelefone(cliente.telefone) : null].filter(Boolean).join(' · ') || '—';
 
     document.getElementById('select-funil').value = cliente.status_funil ?? 'novo';
     document.getElementById('textarea-notas').value = cliente.notas ?? '';
