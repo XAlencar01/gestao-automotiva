@@ -50,6 +50,12 @@ const atualizarCRM = async (id, { status_funil, tags, notas }) => {
   return atualizado;
 };
 
+const listarParaFunil = async () => {
+  // Filtra anonimizados por LGPD (mesma regra usada na tela de lista/Kanban).
+  const dados = await ClienteModel.listarParaFunil();
+  return dados.filter(c => c.nome !== 'Usuário Removido' && c.email !== null);
+};
+
 const buscarHistorico = async (id) => {
   const cliente = await ClienteModel.buscarPorId(id);
   if (!cliente) throw { status: 404, mensagem: 'Cliente não encontrado.' };
@@ -109,4 +115,7 @@ const exportarDados = async (clienteId) => {
   };
 };
 
-module.exports = { listar, buscarPorId, criar, atualizar, remover, exportarDados, atualizarCRM, buscarHistorico };
+module.exports = {
+  listar, buscarPorId, criar, atualizar, remover, exportarDados, atualizarCRM, buscarHistorico,
+  listarParaFunil,
+};

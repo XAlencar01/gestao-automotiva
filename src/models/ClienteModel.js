@@ -60,6 +60,16 @@ const atualizarCRM = async (id, { status_funil, tags, notas }) => {
   return r.rows[0] || null;
 };
 
+// Lista leve com todos os clientes ativos, sem paginação — usada pelo Kanban
+// e pelo card de funil do dashboard, que precisam ver a base inteira de uma vez.
+const listarParaFunil = async () => {
+  const r = await pool.query(
+    `SELECT id, nome, email, telefone, status_funil, tags
+     FROM clientes WHERE ativo = true ORDER BY id ASC`
+  );
+  return r.rows;
+};
+
 const historicoVeiculos = async (clienteId) => {
   const r = await pool.query('SELECT * FROM veiculos WHERE cliente_id = $1 ORDER BY id DESC', [clienteId]);
   return r.rows;
@@ -78,5 +88,5 @@ const historicoAgendamentos = async (clienteId) => {
 
 module.exports = {
   listar, buscarPorId, buscarPorEmail, criar, atualizar, anonimizar, buscarUsuarioId,
-  atualizarCRM, historicoVeiculos, historicoAgendamentos,
+  atualizarCRM, historicoVeiculos, historicoAgendamentos, listarParaFunil,
 };

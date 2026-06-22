@@ -251,10 +251,9 @@ async function carregarDashboard() {
 // FUNIL DE CLIENTES
 async function carregarFunilClientes() {
   try {
-    const res = await fetch(`${API}/clientes?limit=1000`, { headers: getHeaders() });
+    const res = await fetch(`${API}/clientes/funil`, { headers: getHeaders() });
     if (!res.ok) return;
-    const body = await res.json();
-    const dados = (body.dados ?? body).filter(c => c.nome !== 'Usuário Removido');
+    const dados = await res.json();
 
     const contagem = { novo: 0, ativo: 0, recorrente: 0, inativo: 0 };
     dados.forEach(c => {

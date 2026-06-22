@@ -45,6 +45,15 @@ const deletarCliente = async (req, res) => {
   }
 };
 
+const listarFunil = async (req, res) => {
+  try {
+    res.status(200).json(await ClienteService.listarParaFunil());
+  } catch (e) {
+    logger.error(`[listarFunil] ${e.message || e}`);
+    res.status(e.status || 500).json({ erro: e.mensagem || 'Erro ao listar funil de clientes.' });
+  }
+};
+
 const atualizarCRM = async (req, res) => {
   try {
     res.status(200).json(await ClienteService.atualizarCRM(req.params.id, req.body));
@@ -73,5 +82,5 @@ const exportarDados = async (req, res) => {
 
 module.exports = {
   listarClientes, buscarClientePorId, criarCliente, atualizarCliente, deletarCliente, exportarDados,
-  atualizarCRM, buscarHistorico,
+  atualizarCRM, buscarHistorico, listarFunil,
 };

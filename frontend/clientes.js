@@ -252,10 +252,9 @@ async function carregarKanban() {
     document.getElementById(`kanban-${s}`).innerHTML = `<p class="kanban-empty">Carregando...</p>`;
   });
   try {
-    const res = await fetch(`${API}/clientes?limit=1000`, { headers: getHeaders() });
+    const res = await fetch(`${API}/clientes/funil`, { headers: getHeaders() });
     if (!res.ok) throw new Error('Falha na requisição');
-    const body  = await res.json();
-    const dados = (body.dados ?? body).filter(c => c.nome !== 'Usuário Removido' && c.email !== null);
+    const dados = await res.json();
 
     const grupos = { novo: [], ativo: [], recorrente: [], inativo: [] };
     dados.forEach(c => {
