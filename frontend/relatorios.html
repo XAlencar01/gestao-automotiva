@@ -61,6 +61,7 @@
     .seg-pill small{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em}
     .seg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
     .data-table-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:1rem;overflow:hidden}
+    .atalho-periodo.atalho-ativo{background:var(--primary);color:#fff;border-color:var(--primary)}
     @media print{.sidebar,.export-controls,header button,.user-footer{display:none!important}.main-content{margin-left:0!important;padding:0!important}.bi-card,.data-table-card{border:1px solid #ccc!important;color:black!important;background:white!important}body{background:white!important;color:black!important}}
   </style>
 </head>
@@ -102,6 +103,29 @@
         <button onclick="exportarPDF()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all font-bold"><i data-lucide="file-text" class="w-5 h-5"></i><span class="hidden sm:inline">Gerar PDF</span></button>
       </div>
     </header>
+
+    <div class="bi-card mb-8 export-controls">
+      <div class="flex flex-wrap items-end gap-3">
+        <div>
+          <label class="input-label">De</label>
+          <input type="date" id="filtro-data-inicio">
+        </div>
+        <div>
+          <label class="input-label">Até</label>
+          <input type="date" id="filtro-data-fim">
+        </div>
+        <button onclick="aplicarFiltroPeriodo()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all">
+          <i data-lucide="filter" class="w-4 h-4"></i> Filtrar
+        </button>
+        <button onclick="limparFiltroPeriodo()" class="px-4 py-2.5 text-slate-400 hover:text-white font-bold text-sm transition-colors">Limpar</button>
+        <div class="flex gap-2 ml-auto">
+          <button onclick="aplicarAtalhoPeriodo(7, this)"  class="atalho-periodo px-3 py-2 rounded-lg text-xs font-bold border border-slate-700 bg-slate-800 text-slate-400 hover:text-white hover:border-slate-500 transition-all">7 dias</button>
+          <button onclick="aplicarAtalhoPeriodo(30, this)" class="atalho-periodo px-3 py-2 rounded-lg text-xs font-bold border border-slate-700 bg-slate-800 text-slate-400 hover:text-white hover:border-slate-500 transition-all">30 dias</button>
+          <button onclick="aplicarAtalhoPeriodo(90, this)" class="atalho-periodo px-3 py-2 rounded-lg text-xs font-bold border border-slate-700 bg-slate-800 text-slate-400 hover:text-white hover:border-slate-500 transition-all">90 dias</button>
+        </div>
+      </div>
+      <p class="text-xs text-slate-500 mt-3" id="periodo-ativo-label">Mostrando: todo o histórico</p>
+    </div>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <div class="bi-card"><p class="text-xs font-bold text-slate-500 uppercase mb-2 tracking-widest">Ticket Médio</p><h3 class="text-2xl font-black text-white" id="val-ticket">--</h3></div>
       <div class="bi-card"><p class="text-xs font-bold text-slate-500 uppercase mb-2 tracking-widest">Receita Total</p><h3 class="text-2xl font-black text-white" id="val-receita">--</h3></div>

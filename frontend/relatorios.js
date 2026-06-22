@@ -60,10 +60,74 @@ function inicializarGraficos(labelsReceita, dadosReceita, labelsServicos, dadosS
   });
 }
 
+// FILTRO DE PERÍODO
+let _filtroDataInicio = '';
+let _filtroDataFim    = '';
+
+function aplicarFiltroPeriodo() {
+  const inicio = document.getElementById('filtro-data-inicio').value;
+  const fim    = document.getElementById('filtro-data-fim').value;
+  if (inicio && fim && inicio > fim) {
+    toast.aviso('A data inicial não pode ser depois da data final.');
+    return;
+  }
+  _filtroDataInicio = inicio;
+  _filtroDataFim    = fim;
+  document.querySelectorAll('.atalho-periodo').forEach(b => b.classList.remove('atalho-ativo'));
+  carregarRelatorios();
+}
+
+function limparFiltroPeriodo() {
+  document.getElementById('filtro-data-inicio').value = '';
+  document.getElementById('filtro-data-fim').value    = '';
+  _filtroDataInicio = '';
+  _filtroDataFim    = '';
+  document.querySelectorAll('.atalho-periodo').forEach(b => b.classList.remove('atalho-ativo'));
+  carregarRelatorios();
+}
+
+function aplicarAtalhoPeriodo(dias, btnEl) {
+  const fim    = new Date();
+  const inicio = new Date();
+  inicio.setDate(inicio.getDate() - (dias - 1));
+
+  const toISO = d => d.toISOString().slice(0, 10);
+  _filtroDataInicio = toISO(inicio);
+  _filtroDataFim    = toISO(fim);
+
+  document.getElementById('filtro-data-inicio').value = _filtroDataInicio;
+  document.getElementById('filtro-data-fim').value    = _filtroDataFim;
+
+  document.querySelectorAll('.atalho-periodo').forEach(b => b.classList.remove('atalho-ativo'));
+  btnEl?.classList.add('atalho-ativo');
+
+  carregarRelatorios();
+}
+
+function atualizarLabelPeriodo(periodo) {
+  const label = document.getElementById('periodo-ativo-label');
+  if (!label) return;
+  if (!periodo?.inicio && !periodo?.fim) {
+    label.textContent = 'Mostrando: todo o histórico';
+    return;
+  }
+  const fmt = iso => iso ? new Date(iso + 'T00:00:00').toLocaleDateString('pt-BR') : '';
+  if (periodo.inicio && periodo.fim) label.textContent = `Mostrando: ${fmt(periodo.inicio)} até ${fmt(periodo.fim)}`;
+  else if (periodo.inicio)           label.textContent = `Mostrando: a partir de ${fmt(periodo.inicio)}`;
+  else                                label.textContent = `Mostrando: até ${fmt(periodo.fim)}`;
+}
+
 async function carregarRelatorios() {
   try {
-    const res  = await fetch(`${API}/relatorios`, { headers: getHeaders() });
+    const params = new URLSearchParams();
+    if (_filtroDataInicio) params.set('data_inicio', _filtroDataInicio);
+    if (_filtroDataFim)    params.set('data_fim', _filtroDataFim);
+
+    const res  = await fetch(`${API}/relatorios?${params}`, { headers: getHeaders() });
     const data = await res.json();
+    if (!res.ok) { toast.erro(data.erro ?? 'Erro ao carregar relatórios.'); return; }
+
+    atualizarLabelPeriodo(data.periodo);
 
     // Cards
     document.getElementById('val-ticket').innerText =
